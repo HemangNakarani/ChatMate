@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "1044428674854",
+    "firebase_url": "https://chatmate-4778f.firebaseio.com",
+    "project_id": "chatmate-4778f",
+    "storage_bucket": "chatmate-4778f.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1044428674854:android:bd0fef0a2fb9509cbfd3e7",
+        "android_client_info": {
+          "package_name": "com.hemangnh18.chatmate"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1044428674854-4qs1pfll4m0a179f70822vlvspup45ov.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.hemangnh18.chatmate",
+            "certificate_hash": "4b93be68422ff97a3b142cbc1e975aa38aa35dd0"
+          }
+        },
+        {
+          "client_id": "1044428674854-1ve15ch0sijnd1vgkrc831fqs0hfefv2.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBkkUx7DftoBxdrv-YSanw20rFzG79Yfz4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1044428674854-1ve15ch0sijnd1vgkrc831fqs0hfefv2.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
