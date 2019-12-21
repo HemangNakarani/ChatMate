@@ -124,8 +124,10 @@ public class AuthenticationActivity extends AppCompatActivity {
                 mInitial.animate().alpha(0).setDuration(500).setListener(new Animator.AnimatorListener() {
                     @Override
                     public void onAnimationStart(Animator animation) {
-                        Animation animation1;
+                        Animation animation1,animation2,animation3;
                         animation1 = AnimationUtils.loadAnimation(AuthenticationActivity.this,R.anim.down_up);
+                        animation2= AnimationUtils.loadAnimation(AuthenticationActivity.this,R.anim.down_up2);
+                        animation3= AnimationUtils.loadAnimation(AuthenticationActivity.this,R.anim.down_up3);
                         animation.addListener(new Animator.AnimatorListener() {
                             @Override
                             public void onAnimationStart(Animator animation) {}
@@ -139,7 +141,10 @@ public class AuthenticationActivity extends AppCompatActivity {
                             @Override
                             public void onAnimationRepeat(Animator animation) {}
                         });
-                        mOTPView.setAnimation(animation1);
+                        //mOTPView.setAnimation(animation1);
+                        findViewById(R.id.OTPCard).setAnimation(animation1);
+                        findViewById(R.id.verifyOTP).setAnimation(animation3);
+                        findViewById(R.id.ImagePoster).setAnimation(animation2);
                     }
                     @Override
                     public void onAnimationEnd(Animator animation) {

@@ -131,7 +131,7 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/OTPView"
-        android:visibility="invisible"
+        android:visibility="gone"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
         <androidx.cardview.widget.CardView
@@ -221,6 +221,7 @@
         <ImageView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:id="@+id/ImagePoster"
             android:src="@drawable/chat_poster"
             android:adjustViewBounds="true"
             app:layout_constraintLeft_toLeftOf="parent"
