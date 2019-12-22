@@ -26,10 +26,10 @@ public class MainActivity extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
 
         final FirebaseUser currentUser = mAuth.getCurrentUser();
-        /*if(currentUser==null){
+        if(currentUser==null){
             startActivity(new Intent(this,AuthenticationActivity.class));
             finish();
-        }*/
+        }
 
         Button logout = findViewById(R.id.out);
         logout.setOnClickListener(new View.OnClickListener() {
