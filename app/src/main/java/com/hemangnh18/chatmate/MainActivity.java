@@ -1,6 +1,7 @@
 package com.hemangnh18.chatmate;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
@@ -9,14 +10,21 @@ import android.widget.Button;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentPagerAdapter;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.hitomi.smlibrary.OnSpinMenuStateChangeListener;
+import com.hitomi.smlibrary.SpinMenu;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
     private FirebaseAuth mAuth;
+    private SpinMenu spinMenu;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,50 +34,53 @@ public class MainActivity extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
 
         final FirebaseUser currentUser = mAuth.getCurrentUser();
-        if(currentUser==null){
-            startActivity(new Intent(this,AuthenticationActivity.class));
+        if (currentUser == null) {
+            startActivity(new Intent(this, AuthenticationActivity.class));
             finish();
         }
 
-        Button logout = findViewById(R.id.out);
-        logout.setOnClickListener(new View.OnClickListener() {
+
+        spinMenu = (SpinMenu) findViewById(R.id.spin_menu);
+        List<String> hintStrList = new ArrayList<>();
+        hintStrList.add("Home");
+        hintStrList.add("Contact");
+        hintStrList.add("Profile");
+
+        spinMenu.setMenuItemScaleValue(0.53f);
+        spinMenu.setHintTextStrList(hintStrList);
+        spinMenu.setHintTextSize(14);
+
+        spinMenu.setEnableGesture(true);
+
+        final List<Fragment> fragmentList = new ArrayList<>();
+        fragmentList.add(HomeFragment.newInstance());
+        fragmentList.add(ContactFragment.newInstance());
+        fragmentList.add(ProfileFragment.newInstance());
+
+
+        FragmentPagerAdapter fragmentPagerAdapter = new FragmentPagerAdapter(getSupportFragmentManager()) {
             @Override
-            public void onClick(View v) {
-                mAuth.signOut();
-                startActivity(new Intent(MainActivity.this,AuthenticationActivity.class));
-                finish();
+            public Fragment getItem(int position) {
+                return fragmentList.get(position);
+            }
+
+            @Override
+            public int getCount() {
+                return fragmentList.size();
+            }
+        };
+        spinMenu.setFragmentAdapter(fragmentPagerAdapter);
+
+        spinMenu.setOnSpinMenuStateChangeListener(new OnSpinMenuStateChangeListener() {
+            @Override
+            public void onMenuOpened() {
+                // Toast.makeText(MainActivity.this, "SpinMenu opened", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onMenuClosed() {
+                //Toast.makeText(MainActivity.this, "SpinMenu closed", Toast.LENGTH_SHORT).show();
             }
         });
-
-        BottomNavigationView bottomNav = findViewById(R.id.bottom_navigation);
-        bottomNav.setOnNavigationItemSelectedListener(navListener);
-
-        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
-                new HomeFragment()).commit();
     }
-
-    private BottomNavigationView.OnNavigationItemSelectedListener navListener =
-            new BottomNavigationView.OnNavigationItemSelectedListener() {
-                @Override
-                public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                    Fragment selectedFragment = null;
-
-                    switch (item.getItemId()) {
-                        case R.id.nav_home:
-                            selectedFragment = new HomeFragment();
-                            break;
-                        case R.id.nav_contact:
-                            selectedFragment = new ContactFragment();
-                            break;
-                        case R.id.nav_profile:
-                            selectedFragment = new ProfileFragment();
-                            break;
-                    }
-
-                    getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
-                            selectedFragment).commit();
-
-                    return true;
-                }
-            };
 }

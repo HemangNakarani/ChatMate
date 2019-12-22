@@ -1,2 +1,2 @@
-include ':app'
+include ':app', ':smlibrary'
 rootProject.name='ChatMate'
