@@ -167,7 +167,7 @@ public class AuthenticationActivity extends AppCompatActivity {
         super.onStart();
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if(currentUser!=null){
-            startActivity(new Intent(this,MainActivity.class));
+            startActivity(new Intent(this,UserInfo.class));
             finish();
         }
         if (mVerificationInProgress && validatePhoneNumber()) {
@@ -216,7 +216,7 @@ public class AuthenticationActivity extends AppCompatActivity {
                         mProgress.setVisibility(View.INVISIBLE);
                         if (task.isSuccessful()) {
                             Log.d(TAG, "signInWithCredential:success");
-                            startActivity(new Intent(AuthenticationActivity.this,MainActivity.class));
+                            startActivity(new Intent(AuthenticationActivity.this,UserInfo.class));
                             finish();
                         } else {
                             Log.w(TAG, "signInWithCredential:failure", task.getException());
