@@ -95,27 +95,6 @@ public class UserInfo extends AppCompatActivity {
         mUsername.setAnimation(AnimationUtils.loadAnimation(getApplicationContext(),R.anim.pop_in));
         mStatus.setAnimation(AnimationUtils.loadAnimation(getApplicationContext(),R.anim.pop_in));
 
-
-
-        mDp.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                if(imageUri!=null && downloadUri!=null)
-                {
-                    Intent fullImageIntent = new Intent(UserInfo.this, FullScreenImageViewActivity2.class);
-                    ArrayList<String> uriString = new ArrayList<>();
-                    ArrayList<String> uriDownloadString = new ArrayList<>();
-                    uriString.add(imageUri.toString());
-                    uriDownloadString.add(downloadUri.toString());
-                    fullImageIntent.putExtra(FullScreenImageViewActivity.URI_LIST_DATA, uriString);
-                    fullImageIntent.putExtra(FullScreenImageViewActivity2.URI_DOWNLOAD_DATA, uriDownloadString);
-                    fullImageIntent.putExtra(FullScreenImageViewActivity.IMAGE_FULL_SCREEN_CURRENT_POS, 0);
-                    startActivity(fullImageIntent);
-                }
-            }
-        });
-
         mDPChanger.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
