@@ -1,6 +1,7 @@
 package com.hemangnh18.chatmate;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
@@ -9,6 +10,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.Toast;
 
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
@@ -20,6 +22,9 @@ import androidx.fragment.app.FragmentPagerAdapter;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.gson.Gson;
+import com.hemangnh18.chatmate.Classes.User;
+import com.hemangnh18.chatmate.Threading.UpdateUser;
 import com.hitomi.smlibrary.OnSpinMenuStateChangeListener;
 import com.hitomi.smlibrary.SpinMenu;
 import com.rupins.drawercardbehaviour.CardDrawerLayout;
@@ -46,7 +51,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             startActivity(new Intent(this, AuthenticationActivity.class));
             finish();
         }
-
 
         spinMenu = (SpinMenu) findViewById(R.id.spin_menu);
         List<String> hintStrList = new ArrayList<>();
@@ -108,7 +112,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             public void onDrawerClosed(View view) {
                 super.onDrawerClosed(view);
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                    window.setStatusBarColor(Color.rgb(33,150,243));
+                    window.setStatusBarColor(Color.parseColor("#539CE4"));
                 }
             }
             public void onDrawerOpened(View drawerView) {
@@ -125,6 +129,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         drawer.setViewScale(Gravity.START, 0.9f);
         drawer.setRadius(Gravity.START, 35);
         drawer.setViewElevation(Gravity.START, 20);
+
     }
 
     @Override

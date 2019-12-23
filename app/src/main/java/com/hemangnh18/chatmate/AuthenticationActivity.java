@@ -1,7 +1,9 @@
 package com.hemangnh18.chatmate;
 
 import android.animation.Animator;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
@@ -28,7 +30,9 @@ import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthProvider;
+import com.google.gson.Gson;
 import com.hbb20.CountryCodePicker;
+import com.hemangnh18.chatmate.Classes.User;
 
 import java.util.concurrent.TimeUnit;
 
@@ -38,6 +42,8 @@ public class AuthenticationActivity extends AppCompatActivity {
     private CountryCodePicker mCCP;
     private ConstraintLayout mInitial,mOTPView;
 
+    SharedPreferences preferences;
+    SharedPreferences.Editor editor;
     private static final String TAG = "PhoneAuthActivity";
     private static final String KEY_VERIFY_IN_PROGRESS = "key_verify_in_progress";
     private boolean mVerificationInProgress = false;
@@ -56,6 +62,14 @@ public class AuthenticationActivity extends AppCompatActivity {
         if (savedInstanceState != null) {
             onRestoreInstanceState(savedInstanceState);
         }
+
+        preferences = getSharedPreferences("UserInfo", Context.MODE_PRIVATE);
+        editor = preferences.edit();
+        Gson gson = new Gson();
+        User user =  new User();
+        editor.putString("User",gson.toJson(user));
+        editor.apply();
+
 
         Button mVerifyBTN = findViewById(R.id.verifyBTn);
         mPhonenumber = findViewById(R.id.phonenumber);
@@ -216,6 +230,15 @@ public class AuthenticationActivity extends AppCompatActivity {
                         mProgress.setVisibility(View.INVISIBLE);
                         if (task.isSuccessful()) {
                             Log.d(TAG, "signInWithCredential:success");
+
+                            Gson gson = new Gson();
+                            String json = preferences.getString("User","");
+                            User user1 = gson.fromJson(json,User.class);
+                            user1.setUSER_ID(FirebaseAuth.getInstance().getCurrentUser().getUid());
+                            user1.setPHONE(FirebaseAuth.getInstance().getCurrentUser().getPhoneNumber());
+                            editor.putString("User",gson.toJson(user1));
+                            editor.apply();
+
                             startActivity(new Intent(AuthenticationActivity.this,UserInfo.class));
                             finish();
                         } else {
