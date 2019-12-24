@@ -127,7 +127,6 @@ public class UserInfo extends AppCompatActivity {
                 else
                 {
                     user1.setUSERNAME(user);
-
                 }
 
                 if(mMale.isChecked())

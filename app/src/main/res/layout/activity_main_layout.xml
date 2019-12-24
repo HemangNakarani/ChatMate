@@ -1,75 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.hitomi.smlibrary.SpinMenu
+
+<androidx.coordinatorlayout.widget.CoordinatorLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/spin_menu"
+xmlns:app="http://schemas.android.com/apk/res-auto"
+android:id="@+id/activity_main"
+android:layout_width="match_parent"
+android:layout_height="match_parent">
+
+<androidx.viewpager.widget.ViewPager
+    android:id="@+id/viewPager"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    app:hint_text_color="#000"
-    app:hint_text_size="20sp"
-    app:scale_ratio="0.36"
-    tools:context=".MainActivity"
-    tools:showIn="@layout/activity_main_toolbar_layout"
-    app:layout_behavior="@string/appbar_scrolling_view_behavior">
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="56dp" />
 
-        <FrameLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="#539CE4">
-        </FrameLayout>
+<eu.long1.spacetablayout.SpaceTabLayout
+    android:id="@+id/spaceTabLayout"
+    app:tabBackground = "@android:color/transparent"
+    app:icon_one="@drawable/ic_person_add_black_24dp"
+    app:icon_two="@drawable/ic_chat_black_24dp"
+    app:icon_three="@drawable/ic_profile_black_24dp"
+    app:text_one="Contacts"
+    app:text_two="Chats"
+    app:text_three="Profile"
+    app:button_color="#F2DBF7"
+    app:text_color="#F2DBF7"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    app:layout_behavior="eu.long1.spacetablayout.SpaceTabLayoutBehavior"
+    app:number_of_tabs="three"
+    app:starting_position="two" />
 
-</com.hitomi.smlibrary.SpinMenu>
-
-
-
-
-    <!--<?xml version="1.0" encoding="utf-8"?>-->
-
-<!--<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"-->
-<!--    xmlns:app="http://schemas.android.com/apk/res-auto"-->
-<!--    xmlns:tools="http://schemas.android.com/tools"-->
-<!--    android:layout_width="match_parent"-->
-<!--    android:layout_height="match_parent"-->
-<!--    tools:context=".MainActivity"-->
-<!--    tools:showIn="@layout/activity_main_toolbar_layout"-->
-<!--    app:layout_behavior="@string/appbar_scrolling_view_behavior">-->
-
-<!--    <androidx.constraintlayout.widget.ConstraintLayout-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="match_parent">-->
-
-<!--        <Button-->
-<!--            android:id="@+id/out"-->
-<!--            android:layout_width="wrap_content"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:text="LogOut"-->
-<!--            app:layout_constraintTop_toTopOf="parent"-->
-<!--            app:layout_constraintStart_toStartOf="parent"/>-->
-
-<!--        <FrameLayout-->
-<!--            android:id="@+id/fragment_container"-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="match_parent"-->
-<!--            app:layout_constraintBottom_toTopOf="@+id/bottom_navigation"-->
-<!--            app:layout_constraintEnd_toEndOf="parent"-->
-<!--            app:layout_constraintStart_toStartOf="parent"-->
-<!--            app:layout_constraintTop_toTopOf="parent" />-->
-
-<!--        <com.google.android.material.bottomnavigation.BottomNavigationView-->
-<!--            android:id="@+id/bottom_navigation"-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:background="?android:attr/windowBackground"-->
-<!--            android:foreground="?attr/selectableItemBackground"-->
-<!--            app:itemBackground="@color/BottomNavBar"-->
-<!--            app:itemIconTint="@drawable/bottom_navigation_color"-->
-<!--            app:itemTextColor="@drawable/bottom_navigation_color"-->
-<!--            app:layout_constraintBottom_toBottomOf="parent"-->
-<!--            app:layout_constraintEnd_toEndOf="parent"-->
-<!--            app:layout_constraintStart_toStartOf="parent"-->
-<!--            app:menu="@menu/bottom_navigation" />-->
-
-<!--    </androidx.constraintlayout.widget.ConstraintLayout>-->
-
-<!--</androidx.core.widget.NestedScrollView>-->
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
