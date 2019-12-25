@@ -39,7 +39,7 @@
 
                 <TextView
                     android:text="Hemang Nakarani"
-                    android:textSize="20dp"
+                    android:textSize="16dp"
                     android:paddingLeft="12dp"
                     android:singleLine="true"
                     android:textColor="#000"
@@ -54,6 +54,7 @@
                     android:id="@+id/contacts_status"
                     android:singleLine="true"
                     android:ellipsize="marquee"
+                    android:textSize="10sp"
                     android:marqueeRepeatLimit ="marquee_forever"
                     android:paddingLeft="12dp"
                     android:layout_width="match_parent"

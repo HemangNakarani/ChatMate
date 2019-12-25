@@ -34,10 +34,14 @@ import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthProvider;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.gson.Gson;
 import com.hbb20.CountryCodePicker;
 import com.hemangnh18.chatmate.Classes.User;
+import com.hemangnh18.chatmate.Threading.UpdateUser;
 
+import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 
 public class AuthenticationActivity extends AppCompatActivity {
@@ -76,10 +80,10 @@ public class AuthenticationActivity extends AppCompatActivity {
 
         preferences = getSharedPreferences("UserInfo", Context.MODE_PRIVATE);
         editor = preferences.edit();
-        Gson gson = new Gson();
+        /*Gson gson = new Gson();
         User user =  new User();
         editor.putString("User",gson.toJson(user));
-        editor.apply();
+        editor.apply();*/
 
 
         Button mVerifyBTN = findViewById(R.id.verifyBTn);
@@ -243,12 +247,13 @@ public class AuthenticationActivity extends AppCompatActivity {
                             Log.d(TAG, "signInWithCredential:success");
 
                             Gson gson = new Gson();
-                            String json = preferences.getString("User","");
-                            User user1 = gson.fromJson(json,User.class);
+                            User user1 = new User();
                             user1.setUSER_ID(FirebaseAuth.getInstance().getCurrentUser().getUid());
                             user1.setPHONE(FirebaseAuth.getInstance().getCurrentUser().getPhoneNumber());
                             editor.putString("User",gson.toJson(user1));
                             editor.apply();
+
+                            new UpdateUser(AuthenticationActivity.this).execute(user1);
 
                             startActivity(new Intent(AuthenticationActivity.this,UserInfo.class));
                             finish();

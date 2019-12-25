@@ -1,11 +1,15 @@
 package com.hemangnh18.chatmate;
 
+import android.Manifest;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -20,6 +24,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
+import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.viewpager.widget.ViewPager;
@@ -29,6 +34,7 @@ import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
+import com.hemangnh18.chatmate.Classes.ContactsList;
 import com.hemangnh18.chatmate.DownloadManager.DirectoryHelper;
 import com.hemangnh18.chatmate.DownloadManager.DownloadSongService;
 import com.hemangnh18.chatmate.Fragments.ContactFragment;
@@ -74,9 +80,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         ViewPager viewPager = (ViewPager) findViewById(R.id.viewPager);
         tabLayout = (SpaceTabLayout) findViewById(R.id.spaceTabLayout);
-
         tabLayout.initialize(viewPager, this.getSupportFragmentManager(), fragmentList,savedInstanceState);
-
         tabLayout.setTabOneOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -92,8 +96,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 //Toast.makeText(getApplication(), "" + tabLayout.getCurrentPosition(), Toast.LENGTH_SHORT).show();
             }
         });
-
-
 
 
         //----Drawer----
@@ -181,4 +183,5 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         AlertDialog alert = builder.create();
         alert.show();
     }
+
 }

@@ -15,7 +15,9 @@ android:layout_height="match_parent">
 
 <eu.long1.spacetablayout.SpaceTabLayout
     android:id="@+id/spaceTabLayout"
-    app:tabBackground = "@android:color/transparent"
+    android:clickable="false"
+    android:focusable="false"
+    app:tabRippleColor="@android:color/transparent"
     app:icon_one="@drawable/ic_person_add_black_24dp"
     app:icon_two="@drawable/ic_chat_black_24dp"
     app:icon_three="@drawable/ic_profile_black_24dp"

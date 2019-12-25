@@ -147,16 +147,31 @@ public class UserInfo extends AppCompatActivity {
                     user1.setSTATUS(status);
                 }
 
+
                 editor.putString("User",gson.toJson(user1));
                 editor.apply();
-                new UpdateUser(UserInfo.this).execute(user1);
-                Intent intent = new Intent(UserInfo.this,MainActivity.class);
-                startActivity(intent);
-                finish();
+                DatabaseReference reference=FirebaseDatabase.getInstance().getReference("Users").child(firebaseUser.getUid());
+                HashMap<String,Object> hashMap = new HashMap<>();
+                hashMap.put("PHONE",firebaseUser.getPhoneNumber());
+                hashMap.put("USERNAME",user);
+                hashMap.put("STATUS",status);
+                hashMap.put("GENDER",user1.getGENDER());
+                hashMap.put("DOWNLOAD","Default");
+                reference.setValue(hashMap).addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+
+                        //TODO SHOW LOADING : DEVEN
+
+                        Intent intent = new Intent(UserInfo.this,MainActivity.class);
+                        startActivity(intent);
+                        finish();
+                    }
+                });
+
+
             }
         });
-
-
 
 
         DirectoryHelper.createDirectory(this);
@@ -185,28 +200,20 @@ public class UserInfo extends AppCompatActivity {
             CropImage.ActivityResult result = CropImage.getActivityResult(data);
             if (resultCode == RESULT_OK) {
                 imageUri = result.getUri();
-                if(uploadTask!=null && uploadTask.isInProgress())
+                if(imageUri==null)
                 {
-                    Toast.makeText(UserInfo.this,"Upload in Progress",Toast.LENGTH_SHORT).show();
+                    Toast.makeText(UserInfo.this,"No Image Selected",Toast.LENGTH_SHORT).show();
                 }
                 else
                 {
-                    if(imageUri==null)
-                    {
-                        Toast.makeText(UserInfo.this,"No Image Selected",Toast.LENGTH_SHORT).show();
-                    }
-                    else
-                    {
-                        Glide.with(this).load(imageUri.getPath()).into(mDp);
-                        new UploadDocsAsyncTask(this).execute(imageUri);
-                    }
+                    Glide.with(this).load(imageUri.getPath()).into(mDp);
+                    new UploadDocsAsyncTask(this).execute(imageUri);
                 }
             } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
                 Exception error = result.getError();
                 Toast.makeText(UserInfo.this,error.toString(),Toast.LENGTH_LONG).show();
             }
         }
-
     }
 
     @Override

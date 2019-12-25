@@ -26,7 +26,7 @@ public class User implements Parcelable {
     public User() {
         this.USERNAME = "User";
         this.STATUS = "Hey People! ChatMate is Cool.";
-        this.GENDER = "6kko";
+        this.GENDER = "Not Provided";
         this.DP = "Default";
         this.DOWNLOAD="Default";
     }

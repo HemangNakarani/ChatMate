@@ -1,16 +1,28 @@
 package com.hemangnh18.chatmate.Fragments;
 
 
+import android.Manifest;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.provider.Settings;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -20,6 +32,8 @@ import com.google.firebase.database.ValueEventListener;
 import com.hemangnh18.chatmate.Adapters.ContactUserAdapter;
 import com.hemangnh18.chatmate.Classes.User;
 import com.hemangnh18.chatmate.R;
+import com.hemangnh18.chatmate.Threading.ContactsMatching;
+import com.hemangnh18.chatmate.Threading.ContactsMatchingFactory;
 
 import java.util.ArrayList;
 
@@ -31,9 +45,12 @@ public class ContactFragment extends Fragment {
     private RecyclerView recyclerView;
     private ContactUserAdapter contactUserAdapter;
     private ArrayList<User> contacts;
+    private ContactsMatching contactsMatching;
     public ContactFragment() {
         // Required empty public constructor
     }
+
+    //TODO : SEARCHBAR in RecyclerView,All items in recycler view are sorted according to username.
 
 
     @Override
@@ -50,33 +67,53 @@ public class ContactFragment extends Fragment {
         contactUserAdapter = new ContactUserAdapter(getContext(),contacts);
         recyclerView.setAdapter(contactUserAdapter);
 
-        DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Users");
-        reference.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-
-                for(DataSnapshot snapshot:dataSnapshot.getChildren())
-                {
-                    User user= snapshot.getValue(User.class);
-                    contacts.add(user);
-                    contacts.add(user);
-                    contacts.add(user);
-                    contacts.add(user);
-                    contacts.add(user);
-                    contacts.add(user);
-                    contacts.add(user);
-                    contacts.add(user);
-                }
-                contactUserAdapter.notifyDataSetChanged();
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        });
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED ) {
+            requestPermissions(new String[]{Manifest.permission.READ_CONTACTS}, 404);
+        }
+        else
+        {
+            ContactsMatchingFactory factory = new ContactsMatchingFactory(getContext());
+            contactsMatching = ViewModelProviders.of(this,factory).get(ContactsMatching.class);
+            subscribe();
+        }
 
         return view;
+    }
+
+
+    private void subscribe() {
+        final Observer<ArrayList<User>> elapsedTimeObserver = new Observer<ArrayList<User>>() {
+            @Override
+            public void onChanged(@Nullable final ArrayList aLong) {
+                contacts.clear();
+                contacts.addAll(aLong);
+                contactUserAdapter.notifyDataSetChanged();
+            }
+        };
+
+        contactsMatching.getElapsedTime().observe(this, elapsedTimeObserver);
+    }
+
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == 404) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED )
+            {
+                ContactsMatchingFactory factory = new ContactsMatchingFactory(getContext());
+                contactsMatching = ViewModelProviders.of(this,factory).get(ContactsMatching.class);
+                subscribe();
+            }
+            else
+            {
+                Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                Uri uri = Uri.fromParts("package", getActivity().getPackageName(), null);
+                intent.setData(uri);
+                startActivity(intent);
+                //getActivity().finish();
+            }
+        }
     }
 
 }

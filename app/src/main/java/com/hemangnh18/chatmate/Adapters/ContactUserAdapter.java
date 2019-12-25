@@ -14,6 +14,7 @@ import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.github.tntkhang.fullscreenimageview.library.FullScreenImageViewActivity;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -22,8 +23,10 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.hemangnh18.chatmate.Classes.User;
+import com.hemangnh18.chatmate.ImageViewer.FullScreenImageViewActivity2;
 import com.hemangnh18.chatmate.R;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -51,9 +54,38 @@ public class ContactUserAdapter extends RecyclerView.Adapter<ContactUserAdapter.
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
 
+        final int k =position;
         holder.cardView.setAnimation(AnimationUtils.loadAnimation(mContext,R.anim.fade_scale_animation));
         holder.username.setAnimation(AnimationUtils.loadAnimation(mContext,R.anim.fade_scale_animation));
         holder.ststus.setAnimation(AnimationUtils.loadAnimation(mContext,R.anim.fade_scale_animation));
+
+        if(mUsers.get(position).getDOWNLOAD().equals("Default"))
+        {
+            holder.dp.setImageResource(R.drawable.ic_person_add_black_24dp);
+        }
+        else
+        {
+            Glide.with(mContext).load(mUsers.get(position).getDOWNLOAD()).into(holder.dp);
+        }
+
+        holder.dp.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(mUsers.get(k).getDOWNLOAD().equals("Default"))
+                {}
+                else
+                {
+                    Intent fullImageIntent = new Intent(mContext, FullScreenImageViewActivity2.class);
+                    ArrayList<String> uriString = new ArrayList<>();
+                    uriString.add(mUsers.get(k).getDOWNLOAD());
+                    fullImageIntent.putExtra(FullScreenImageViewActivity.URI_LIST_DATA, uriString);
+                    fullImageIntent.putExtra(FullScreenImageViewActivity2.URI_DOWNLOAD_DATA, uriString);
+                    fullImageIntent.putExtra(FullScreenImageViewActivity.IMAGE_FULL_SCREEN_CURRENT_POS, 0);
+                    mContext.startActivity(fullImageIntent);
+                }
+            }
+        });
+
 
         holder.username.setText(mUsers.get(position).getUSERNAME());
         holder.ststus.setText(mUsers.get(position).getSTATUS());

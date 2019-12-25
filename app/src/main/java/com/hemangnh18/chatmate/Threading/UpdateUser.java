@@ -52,11 +52,6 @@ public class UpdateUser extends AsyncTask<User, Void, Void> {
 
         User user = users[0];
         final DatabaseReference usersRef = reference.child(firebaseUser.getUid());
-        Date date = new Date();
-        String strDateFormat = "dd-MM-yyyy | hh:mm a";
-        DateFormat dateFormat = new SimpleDateFormat(strDateFormat);
-        String formattedDate= dateFormat.format(date);
-
         final HashMap<String,Object> mapdata = new HashMap<>();
         mapdata.put("USERNAME",user.getUSERNAME());
         mapdata.put("STATUS",user.getSTATUS());
@@ -69,7 +64,6 @@ public class UpdateUser extends AsyncTask<User, Void, Void> {
                 Log.e(TAG,task.toString());
             }
         });
-
 
         return null;
     }
