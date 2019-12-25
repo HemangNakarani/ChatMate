@@ -1,30 +1,23 @@
 package com.hemangnh18.chatmate;
 
-import android.Manifest;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
 import android.graphics.Color;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.provider.Settings;
+import android.os.Handler;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
-import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.viewpager.widget.ViewPager;
@@ -39,7 +32,7 @@ import com.hemangnh18.chatmate.DownloadManager.DirectoryHelper;
 import com.hemangnh18.chatmate.DownloadManager.DownloadSongService;
 import com.hemangnh18.chatmate.Fragments.ContactFragment;
 import com.hemangnh18.chatmate.Fragments.HomeFragment;
-import com.hemangnh18.chatmate.Fragments.Profile;
+import com.hemangnh18.chatmate.Fragments.Profilefragment;
 import com.rupins.drawercardbehaviour.CardDrawerLayout;
 
 import java.util.ArrayList;
@@ -53,7 +46,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private FirebaseAuth mAuth;
     private CardDrawerLayout drawer;
     private Window window;
-
+    private ViewPager viewPager;
+    private NavigationView navigationView;
+    private Handler handler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,6 +56,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         setContentView(R.layout.activity_main);
 
         mAuth = FirebaseAuth.getInstance();
+        handler = new Handler();
 
         final FirebaseUser currentUser = mAuth.getCurrentUser();
         if (currentUser == null) {
@@ -68,24 +64,21 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             finish();
         }
 
-
+        //----bottom navigation----
         List<Fragment> fragmentList = new ArrayList<>();
         fragmentList.add(new ContactFragment());
         fragmentList.add(new HomeFragment());
-        fragmentList.add(new Profile());
-
-
+        fragmentList.add(new Profilefragment());
 
         final CoordinatorLayout coordinatorLayout = (CoordinatorLayout) findViewById(R.id.activity_main);
 
-        ViewPager viewPager = (ViewPager) findViewById(R.id.viewPager);
+        viewPager = (ViewPager) findViewById(R.id.viewPager);
         tabLayout = (SpaceTabLayout) findViewById(R.id.spaceTabLayout);
         tabLayout.initialize(viewPager, this.getSupportFragmentManager(), fragmentList,savedInstanceState);
         tabLayout.setTabOneOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Snackbar snackbar = Snackbar.make(coordinatorLayout, "Welcome to SpaceTabLayout", Snackbar.LENGTH_SHORT);
-
                 snackbar.show();
             }
         });
@@ -97,7 +90,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
         });
 
-
         //----Drawer----
 
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -105,7 +97,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         window = getWindow();
         window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
         drawer = findViewById(R.id.drawer_layout);
-        NavigationView navigationView = findViewById(R.id.nav_view);
+        navigationView = findViewById(R.id.nav_view);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar,R.string.navigation_drawer_open, R.string.navigation_drawer_close){
             public void onDrawerClosed(View view) {
@@ -131,13 +123,56 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     }
 
+    //----navigation drawer----
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
 
-        drawer.closeDrawer(GravityCompat.START);
+        int id = item.getItemId();
+
+        if (id == R.id.nav_home) {
+            viewPager.setCurrentItem(1);
+            navigationView.getMenu().getItem(0).setChecked(true);
+            navigationView.getMenu().getItem(2).setChecked(false);
+            navigationView.getMenu().getItem(1).setChecked(false);
+
+        } else if (id == R.id.nav_contact) {
+            viewPager.setCurrentItem(0);
+            navigationView.getMenu().getItem(1).setChecked(true);
+            navigationView.getMenu().getItem(0).setChecked(false);
+            navigationView.getMenu().getItem(2).setChecked(false);
+
+        }else if (id == R.id.nav_profile) {
+            viewPager.setCurrentItem(2);
+            navigationView.getMenu().getItem(2).setChecked(true);
+            navigationView.getMenu().getItem(0).setChecked(false);
+            navigationView.getMenu().getItem(1).setChecked(false);
+
+        }else if (id == R.id.nav_suggestion) {
+
+        }else if (id == R.id.nav_help) {
+
+        }else if (id == R.id.nav_invite) {
+
+        }else if (id == R.id.nav_aboutapp) {
+
+        }
+
+        delay();
         return true;
+
     }
 
+    public void delay(){
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                drawer.closeDrawer(GravityCompat.START);
+            }
+        },200);
+        return;
+    }
+
+    //----menu bar----
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.mainactivity_menu,menu);
@@ -158,6 +193,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     }
 
+    //----firebase----
     private void SignOut()
     {
         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);

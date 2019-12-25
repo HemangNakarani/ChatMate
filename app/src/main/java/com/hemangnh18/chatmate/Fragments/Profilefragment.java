@@ -14,10 +14,10 @@ import com.hemangnh18.chatmate.R;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class Profile extends Fragment {
+public class Profilefragment extends Fragment {
 
 
-    public Profile() {
+    public Profilefragment() {
         // Required empty public constructor
     }
 

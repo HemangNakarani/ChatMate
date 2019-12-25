@@ -12,13 +12,14 @@
 
     <com.google.android.material.navigation.NavigationView
         android:id="@+id/nav_view"
-        android:background="#0000ff00"
         android:layout_width="wrap_content"
-        app:itemTextColor="#000000"
         android:layout_height="match_parent"
         android:layout_gravity="start|center"
         android:fitsSystemWindows="true"
-        app:menu="@menu/drawer_navigation"/>
+        app:headerLayout="@layout/nav_drawer_header_layout"
+        app:menu="@menu/drawer_navigation"
+        app:itemTextColor="#000000"
+        android:background="#0000ff00"/>
 
     <!--This is for toolbar-->
     <include layout="@layout/activity_main_toolbar_layout"/>
