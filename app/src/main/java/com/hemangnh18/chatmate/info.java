@@ -21,11 +21,11 @@ public class info extends AppCompatActivity {
 
         mToolbar = findViewById(R.id.toolbar);
         //TODO
-        //mToolbar.setTitle();
+        // mToolbar.setTitle();
 
         mStatus = findViewById(R.id.status);
         //TODO
-        //mStatus.setText();
+        // mStatus.setText();
 
         mToolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override

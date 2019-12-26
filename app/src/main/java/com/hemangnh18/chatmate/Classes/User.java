@@ -6,13 +6,23 @@ import android.os.Parcelable;
 public class User implements Parcelable {
     private String USERNAME;
     private String PHONE;
+
+    public String getBASE64() {
+        return BASE64;
+    }
+
+    public void setBASE64(String BASE64) {
+        this.BASE64 = BASE64;
+    }
+
     private String STATUS;
     private String USER_ID;
     private String GENDER;
     private String DP;
     private String DOWNLOAD;
+    private String  BASE64;
 
-    public User(String USERNAME, String PHONE,String STATUS, String USER_ID, String GENDER, String DP,String DOWNLOAD) {
+    public User(String USERNAME, String PHONE,String STATUS, String USER_ID, String GENDER, String DP,String DOWNLOAD,String BASE64) {
         this.USERNAME = USERNAME;
         this.PHONE = PHONE;
         this.STATUS = STATUS;
@@ -20,6 +30,7 @@ public class User implements Parcelable {
         this.GENDER = GENDER;
         this.DP = DP;
         this.DOWNLOAD = DOWNLOAD;
+        this.BASE64 = BASE64;
     }
 
 
@@ -29,6 +40,7 @@ public class User implements Parcelable {
         this.GENDER = "Not Provided";
         this.DP = "Default";
         this.DOWNLOAD="Default";
+        this.BASE64="Default";
     }
 
     protected User(Parcel in) {
@@ -39,6 +51,7 @@ public class User implements Parcelable {
         GENDER = in.readString();
         DP = in.readString();
         DOWNLOAD =in.readString();
+        BASE64 = in.readString();
     }
 
     @Override
@@ -50,6 +63,7 @@ public class User implements Parcelable {
         dest.writeString(GENDER);
         dest.writeString(DP);
         dest.writeString(DOWNLOAD);
+        dest.writeString(BASE64);
     }
 
     @Override
@@ -134,6 +148,7 @@ public class User implements Parcelable {
                 ", USER_ID='" + USER_ID + '\'' +
                 ", GENDER='" + GENDER + '\'' +
                 ", DOWNLOAD='" + DOWNLOAD + '\'' +
+                ", BASE64='" + BASE64 + '\'' +
                 ", DP='" + DP + '\'' +
                 '}';
     }

@@ -54,7 +54,7 @@
                     android:id="@+id/contacts_status"
                     android:singleLine="true"
                     android:ellipsize="marquee"
-                    android:textSize="10sp"
+                    android:textSize="14sp"
                     android:marqueeRepeatLimit ="marquee_forever"
                     android:paddingLeft="12dp"
                     android:layout_width="match_parent"

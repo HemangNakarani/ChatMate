@@ -2,6 +2,15 @@ package com.hemangnh18.chatmate.Adapters;
 
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.net.Uri;
+import android.provider.ContactsContract;
+import android.util.Base64;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,24 +24,24 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.github.tntkhang.fullscreenimageview.library.FullScreenImageViewActivity;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
+import com.hemangnh18.chatmate.Classes.ContactDb;
 import com.hemangnh18.chatmate.Classes.User;
+import com.hemangnh18.chatmate.Compressing.Converter;
 import com.hemangnh18.chatmate.ImageViewer.FullScreenImageViewActivity2;
+import com.hemangnh18.chatmate.MainActivity;
 import com.hemangnh18.chatmate.R;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class ContactUserAdapter extends RecyclerView.Adapter<ContactUserAdapter.ViewHolder> {
-
 
     private Context mContext;
     private List<User> mUsers;
@@ -52,32 +61,53 @@ public class ContactUserAdapter extends RecyclerView.Adapter<ContactUserAdapter.
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull final ViewHolder holder, int position) {
 
         final int k =position;
         holder.cardView.setAnimation(AnimationUtils.loadAnimation(mContext,R.anim.fade_scale_animation));
         holder.username.setAnimation(AnimationUtils.loadAnimation(mContext,R.anim.fade_scale_animation));
         holder.ststus.setAnimation(AnimationUtils.loadAnimation(mContext,R.anim.fade_scale_animation));
 
-        if(mUsers.get(position).getDOWNLOAD().equals("Default"))
+
+        String pp=getContactName(mUsers.get(k).getPHONE(),mContext);
+        if(!pp.equals(""))
         {
-            holder.dp.setImageResource(R.drawable.ic_person_add_black_24dp);
+            holder.username.setText(pp);
         }
         else
         {
-            Glide.with(mContext).load(mUsers.get(position).getDOWNLOAD()).into(holder.dp);
+            holder.username.setText(mUsers.get(k).getPHONE());
+        }
+
+        if(mUsers.get(k).getBASE64().equals("Default"))
+        {
+            if(mUsers.get(k).getGENDER().equals("Male"))
+            {
+                holder.dp.setImageResource(R.drawable.man);
+            }
+            else
+            {
+                holder.dp.setImageResource(R.drawable.girl);
+            }
+        }
+        else
+        {
+            holder.dp.setImageBitmap(Converter.Base642Bitmap(mUsers.get(k).getBASE64()));
         }
 
         holder.dp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(mUsers.get(k).getDOWNLOAD().equals("Default"))
-                {}
+                String dwn = mUsers.get(k).getDOWNLOAD();
+                if(dwn.equals("Default"))
+                {
+
+                }
                 else
                 {
                     Intent fullImageIntent = new Intent(mContext, FullScreenImageViewActivity2.class);
                     ArrayList<String> uriString = new ArrayList<>();
-                    uriString.add(mUsers.get(k).getDOWNLOAD());
+                    uriString.add(dwn);
                     fullImageIntent.putExtra(FullScreenImageViewActivity.URI_LIST_DATA, uriString);
                     fullImageIntent.putExtra(FullScreenImageViewActivity2.URI_DOWNLOAD_DATA, uriString);
                     fullImageIntent.putExtra(FullScreenImageViewActivity.IMAGE_FULL_SCREEN_CURRENT_POS, 0);
@@ -86,9 +116,7 @@ public class ContactUserAdapter extends RecyclerView.Adapter<ContactUserAdapter.
             }
         });
 
-
-        holder.username.setText(mUsers.get(position).getUSERNAME());
-        holder.ststus.setText(mUsers.get(position).getSTATUS());
+        holder.ststus.setText(mUsers.get(k).getSTATUS());
     }
 
     @Override
@@ -115,66 +143,36 @@ public class ContactUserAdapter extends RecyclerView.Adapter<ContactUserAdapter.
 
     }
 
-    /*private void LastMessage(final String userid, final TextView last_message, final ImageView last_photo, final TextView last_time)
+
+    public String getContactName(final String phoneNumber, Context context)
     {
-        lastestmessage = "WelCome";
-        lasttime="time";
-        type = "text";
-        final FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-        if(firebaseUser!=null)
-        {
-            DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("Chats");
-            databaseReference.addValueEventListener(new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                    for(DataSnapshot snapshot: dataSnapshot.getChildren())
-                    {
-                        Chats chats = snapshot.getValue(Chats.class);
-                        if((chats.getReciever().equals(firebaseUser.getUid()) &&  chats.getSender().equals(userid)) || (chats.getSender().equals(firebaseUser.getUid()) &&  chats.getReciever().equals(userid)))
-                        {
-                            lastestmessage = chats.getMessage();
-                            lasttime = chats.getTime();
-                            type = chats.getType();
-                        }
-                    }
+        Uri uri= Uri.withAppendedPath(ContactsContract.PhoneLookup.CONTENT_FILTER_URI,Uri.encode(phoneNumber));
 
-                    switch (type)
-                    {
-                        case "text":
-                        {
-                            switch (lastestmessage)
-                            {
-                                case "WelCome":
-                                    last_message.setText("");
-                                    break;
-                                default:
-                                    last_message.setText(lastestmessage);
-                                    last_time.setText(lasttime);
-                                    break;
-                            }
-                            last_photo.setVisibility(View.GONE);
-                            break;
-                        }
-                        case "photo":
-                        {
-                            last_message.setText("");
-                            last_time.setText(lasttime);
-                            last_photo.setVisibility(View.VISIBLE);
-                        }
-                    }
+        String[] projection = new String[]{ContactsContract.PhoneLookup.DISPLAY_NAME};
 
+        String contactName="";
+        Cursor cursor=context.getContentResolver().query(uri,projection,null,null,null);
 
-                    lastestmessage="WelCome";
-                    type="text";
-                    lasttime="time";
-
-                }
-
-                @Override
-                public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                }
-            });
+        if (cursor != null) {
+            if(cursor.moveToFirst()) {
+                contactName=cursor.getString(0);
+            }
+            cursor.close();
         }
-    }*/
+
+        return contactName;
+    }
+
+    boolean hasConnection()
+    {
+        ConnectivityManager cm =
+                (ConnectivityManager)mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        boolean isConnected = activeNetwork != null &&
+                activeNetwork.isConnectedOrConnecting();
+
+        if(isConnected) {return  true;}
+        else {return false;}
+    }
 }

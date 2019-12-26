@@ -2,34 +2,30 @@ package com.hemangnh18.chatmate;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.constraintlayout.widget.ConstraintLayout;
 
 import android.Manifest;
-import android.animation.Animator;
-import android.app.ProgressDialog;
-import android.content.ContentResolver;
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
+import android.util.Base64;
+import android.util.Log;
 import android.view.View;
-import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.webkit.MimeTypeMap;
 import android.widget.Button;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Toast;
-import android.widget.Toolbar;
 
 import com.bumptech.glide.Glide;
-import com.github.tntkhang.fullscreenimageview.library.FullScreenImageViewActivity;
-import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
@@ -39,19 +35,19 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.StorageTask;
-import com.google.firebase.storage.UploadTask;
 import com.google.gson.Gson;
 import com.hemangnh18.chatmate.Classes.User;
+import com.hemangnh18.chatmate.Compressing.Compressor;
+import com.hemangnh18.chatmate.Compressing.Converter;
 import com.hemangnh18.chatmate.DownloadManager.DirectoryHelper;
-import com.hemangnh18.chatmate.ImageViewer.FullScreenImageViewActivity2;
-import com.hemangnh18.chatmate.Threading.UpdateUser;
 import com.hemangnh18.chatmate.Threading.UploadDocsAsyncTask;
 import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
 
-import java.util.ArrayList;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
-
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class UserInfo extends AppCompatActivity {
@@ -64,10 +60,8 @@ public class UserInfo extends AppCompatActivity {
     private Button mProceed;
     private RadioGroup mGender;
     private RadioButton mMale,mFemale;
-    private StorageTask uploadTask;
     private DatabaseReference reference;
-    private StorageReference storageReference;
-    private Uri imageUri,downloadUri;
+    private Uri imageUri;
     private static final int WRITE_EXTERNAL_STORAGE_REQUEST_CODE = 54654;
 
     @Override
@@ -75,10 +69,8 @@ public class UserInfo extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user_info);
 
-
         firebaseAuth = FirebaseAuth.getInstance();
         firebaseUser = firebaseAuth.getCurrentUser();
-        storageReference = FirebaseStorage.getInstance().getReference("UserProfiles");
         mDPChanger = findViewById(R.id.edit_dp);
         mDp = findViewById(R.id.dp);
         mUsername = findViewById(R.id.username);
@@ -150,13 +142,16 @@ public class UserInfo extends AppCompatActivity {
 
                 editor.putString("User",gson.toJson(user1));
                 editor.apply();
-                DatabaseReference reference=FirebaseDatabase.getInstance().getReference("Users").child(firebaseUser.getUid());
+                DatabaseReference reference=FirebaseDatabase.getInstance().getReference("Users").child(firebaseUser.getPhoneNumber());
                 HashMap<String,Object> hashMap = new HashMap<>();
                 hashMap.put("PHONE",firebaseUser.getPhoneNumber());
+                hashMap.put("USER_ID",firebaseUser.getUid());
                 hashMap.put("USERNAME",user);
                 hashMap.put("STATUS",status);
                 hashMap.put("GENDER",user1.getGENDER());
-                hashMap.put("DOWNLOAD","Default");
+                hashMap.put("DOWNLOAD",user1.getDOWNLOAD());
+                hashMap.put("BASE64",user1.getBASE64());
+
                 reference.setValue(hashMap).addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
@@ -168,7 +163,6 @@ public class UserInfo extends AppCompatActivity {
                         finish();
                     }
                 });
-
 
             }
         });
@@ -207,6 +201,7 @@ public class UserInfo extends AppCompatActivity {
                 else
                 {
                     Glide.with(this).load(imageUri.getPath()).into(mDp);
+                    customCompressImage(new File(imageUri.getPath()));
                     new UploadDocsAsyncTask(this).execute(imageUri);
                 }
             } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
@@ -225,5 +220,45 @@ public class UserInfo extends AppCompatActivity {
                 openImage();
         }
     }
+
+    public void customCompressImage(File actualImage) {
+        if (actualImage == null) {
+
+        } else {
+            try {
+                File compressedImage = new Compressor(this)
+                        .setMaxWidth(640)
+                        .setMaxHeight(480)
+                        .setQuality(75)
+                        .setCompressFormat(Bitmap.CompressFormat.WEBP)
+                        .setDestinationDirectoryPath(Environment.getExternalStorageDirectory().getAbsolutePath()+"/ChatMate/DP")
+                        .compressToFile(actualImage);
+
+                String base64 = Converter.File2Base64(compressedImage);
+
+                SharedPreferences preferences = getSharedPreferences("UserInfo",Context.MODE_PRIVATE);
+                SharedPreferences.Editor editor = preferences.edit();
+
+                Gson gson = new Gson();
+                String json = preferences.getString("User","");
+                User user = gson.fromJson(json,User.class);
+                user.setBASE64(base64);
+                editor.putString("User",gson.toJson(user));
+                editor.apply();
+
+                reference = FirebaseDatabase.getInstance().getReference("Users").child(firebaseUser.getPhoneNumber());
+                HashMap<String ,Object> hashMap = new HashMap<>();
+                hashMap.put("BASE64",base64);
+                reference.updateChildren(hashMap);
+                Log.e("BASE64>>>",base64);
+
+            } catch (IOException e) {
+                e.printStackTrace();
+
+            }
+        }
+    }
+
+
 
 }

@@ -41,7 +41,7 @@ public class DirectoryHelper extends ContextWrapper {
     }
 
     private boolean isDirectoryExists(String directoryName) {
-        File file = new File(Environment.getExternalStorageDirectory() + "/" + directoryName +"/DP");
+        File file = new File(Environment.getExternalStorageDirectory() + "/" + directoryName);
         return file.isDirectory() && file.exists();
     }
 }

@@ -21,13 +21,16 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.gson.Gson;
+import com.hemangnh18.chatmate.Classes.ContactDb;
 import com.hemangnh18.chatmate.Classes.User;
+import com.hemangnh18.chatmate.Database.DatabaseHandler;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
@@ -37,11 +40,12 @@ import java.util.TreeSet;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import static androidx.constraintlayout.widget.Constraints.TAG;
+
 public class ContactsMatching extends ViewModel {
 
     private MutableLiveData<ArrayList<User>> mContactsList = new MutableLiveData<>();
-    private ArrayList<User> UserList = new ArrayList<>();
-    private long mInitialTime;
+    private ArrayList<User> userList = new ArrayList<>();
     private Context context;
 
     public ContactsMatching(Context context) {
@@ -52,8 +56,6 @@ public class ContactsMatching extends ViewModel {
     public void init()
     {
 
-        final Map<String, String> namePhoneMap = new HashMap<String, String>();
-        final HashMap<String,User> linkmap = new HashMap<>();
         final TreeSet<User> userSet = new TreeSet<>(new Comparator<User>(){
             @Override
             public int compare(User s1, User s2)
@@ -69,6 +71,9 @@ public class ContactsMatching extends ViewModel {
 
             }
         });
+
+        final HashSet<ContactDb> arr = new HashSet<>();
+        final Map<String, String> namePhoneMap = new HashMap<String, String>();
         final ExecutorService service =  Executors.newSingleThreadExecutor();
         service.submit(new Runnable() {
             @Override
@@ -84,46 +89,54 @@ public class ContactsMatching extends ViewModel {
                     {
                             phoneNumber="+91"+phoneNumber;
                     }
-                    namePhoneMap.put(phoneNumber, name);
-                    Log.e("TAG>>>>",phoneNumber+" "+name);
+                    arr.add(new ContactDb(name,phoneNumber));
+                    namePhoneMap.put(phoneNumber,name);
                 }
 
-                phones.close();
-                service.shutdown();
+                final DatabaseHandler handler = new DatabaseHandler(context);
+                handler.DeleteAll();
+                for (final Map.Entry<String, String> entry : namePhoneMap.entrySet()) {
 
-                final DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Users");
-                reference.addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                        UserList.clear();
-                        for(DataSnapshot snapshot:dataSnapshot.getChildren())
-                        {
+                    final DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Users");
+                    reference.addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                            if (dataSnapshot.hasChild(entry.getKey())) {
+                                final DatabaseReference reference1 = FirebaseDatabase.getInstance().getReference("Users").child(entry.getKey());
+                                reference1.addListenerForSingleValueEvent(new ValueEventListener() {
+                                    @Override
+                                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
-                            User user = snapshot.getValue(User.class);
-                            assert user != null;
-                            user.setUSER_ID(snapshot.getKey());
-                            SharedPreferences preferences = context.getSharedPreferences("UserInfo",Context.MODE_PRIVATE);
-                            String json= preferences.getString("User","");
-                            Gson gson =new Gson();
-                            User pote= gson.fromJson(json,User.class);
-                            if(namePhoneMap.containsKey(user.getPHONE()) && !user.getPHONE().equals(pote.getPHONE()))
-                            {
-                                linkmap.put(snapshot.getKey(),user);
-                                userSet.add(user);
+                                        User user = dataSnapshot.getValue(User.class);
+                                        handler.addUser(user);
+                                        userSet.add(user);
+                                        userList.clear();
+                                        userList.addAll(userSet);
+                                        mContactsList.postValue(userList);
+                                        Log.e("HELLO?>>>>",user.getUSERNAME()+" "+user.getUSER_ID());
+                                        reference1.removeEventListener(this);
+                                    }
+                                    @Override
+                                    public void onCancelled(@NonNull DatabaseError databaseError) {
 
+                                    }
+                                });
+
+                                reference.removeEventListener(this);
+                            } else {
+                                Log.e("NO>>>>", "NOOOOO");
                             }
                         }
 
-                        UserList.clear();
-                        UserList.addAll(userSet);
-                        mContactsList.postValue(UserList);
-                        reference.removeEventListener(this);
-                    }
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError databaseError) {
 
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError databaseError) {
-                    }
-                });
+                        }
+                    });
+                }
+                phones.close();
+                service.shutdown();
+
             }
         });
 

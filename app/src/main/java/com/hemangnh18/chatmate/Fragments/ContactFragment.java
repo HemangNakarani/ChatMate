@@ -2,8 +2,11 @@ package com.hemangnh18.chatmate.Fragments;
 
 
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -30,7 +33,9 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.hemangnh18.chatmate.Adapters.ContactUserAdapter;
+import com.hemangnh18.chatmate.Classes.ContactDb;
 import com.hemangnh18.chatmate.Classes.User;
+import com.hemangnh18.chatmate.Database.DatabaseHandler;
 import com.hemangnh18.chatmate.R;
 import com.hemangnh18.chatmate.Threading.ContactsMatching;
 import com.hemangnh18.chatmate.Threading.ContactsMatchingFactory;
@@ -53,6 +58,7 @@ public class ContactFragment extends Fragment {
     //TODO : SEARCHBAR in RecyclerView,All items in recycler view are sorted according to username.
 
 
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -72,9 +78,20 @@ public class ContactFragment extends Fragment {
         }
         else
         {
-            ContactsMatchingFactory factory = new ContactsMatchingFactory(getContext());
-            contactsMatching = ViewModelProviders.of(this,factory).get(ContactsMatching.class);
-            subscribe();
+            if(hasConnection()) {
+                ContactsMatchingFactory factory = new ContactsMatchingFactory(getContext());
+                contactsMatching = ViewModelProviders.of(this, factory).get(ContactsMatching.class);
+                subscribe();
+            }
+            else
+            {
+                Toast.makeText(getContext(),"No Connection",Toast.LENGTH_LONG).show();
+                    DatabaseHandler handler = new DatabaseHandler(getContext());
+                    contacts.clear();
+                    contacts.addAll(handler.getAllUsers());
+                    contactUserAdapter.notifyDataSetChanged();
+            }
+
         }
 
         return view;
@@ -103,7 +120,10 @@ public class ContactFragment extends Fragment {
             {
                 ContactsMatchingFactory factory = new ContactsMatchingFactory(getContext());
                 contactsMatching = ViewModelProviders.of(this,factory).get(ContactsMatching.class);
-                subscribe();
+                if(hasConnection()) {
+                    subscribe();
+                }
+
             }
             else
             {
@@ -114,6 +134,29 @@ public class ContactFragment extends Fragment {
                 //getActivity().finish();
             }
         }
+    }
+
+
+    boolean hasConnection()
+    {
+        try {
+            ConnectivityManager cm =
+                    (ConnectivityManager)getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+
+            NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+            boolean isConnected = activeNetwork != null &&
+                    activeNetwork.isConnectedOrConnecting();
+
+            if(isConnected) {return  true;}
+            else {return false;}
+
+        }
+        catch (NullPointerException e)
+        {
+            e.printStackTrace();
+            return  false;
+        }
+
     }
 
 }

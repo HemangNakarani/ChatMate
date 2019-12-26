@@ -27,7 +27,6 @@ import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
-import com.hemangnh18.chatmate.Classes.ContactsList;
 import com.hemangnh18.chatmate.DownloadManager.DirectoryHelper;
 import com.hemangnh18.chatmate.DownloadManager.DownloadSongService;
 import com.hemangnh18.chatmate.Fragments.ContactFragment;

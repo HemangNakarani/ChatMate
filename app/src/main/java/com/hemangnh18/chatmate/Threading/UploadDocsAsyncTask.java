@@ -21,6 +21,7 @@ import com.google.firebase.storage.UploadTask;
 import com.google.gson.Gson;
 import com.hemangnh18.chatmate.Classes.User;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.ExecutionException;
@@ -79,11 +80,12 @@ public class UploadDocsAsyncTask extends AsyncTask<Uri, Void, Void> {
                         editor.putString("User",gson.toJson(user));
                         editor.apply();
 
-                        DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Users").child(firebaseUser.getUid());
+                        DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Users").child(firebaseUser.getPhoneNumber());
                         HashMap<String ,Object> hashMap = new HashMap<>();
                         hashMap.put("DOWNLOAD",user.getDOWNLOAD());
                         reference.updateChildren(hashMap);
                         Log.e("DownLoad URI",uri.toString());
+
                     }
                 });
             }
@@ -115,4 +117,7 @@ public class UploadDocsAsyncTask extends AsyncTask<Uri, Void, Void> {
         super.onPostExecute(aVoid);
         Log.e(TAG,"EXECUTED   >>>>>>>");
     }
+
+
+
 }

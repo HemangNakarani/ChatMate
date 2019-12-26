@@ -51,13 +51,15 @@ public class UpdateUser extends AsyncTask<User, Void, Void> {
     protected Void doInBackground(User... users) {
 
         User user = users[0];
-        final DatabaseReference usersRef = reference.child(firebaseUser.getUid());
+        final DatabaseReference usersRef = reference.child(firebaseUser.getPhoneNumber());
         final HashMap<String,Object> mapdata = new HashMap<>();
         mapdata.put("USERNAME",user.getUSERNAME());
+        mapdata.put("USER_ID",firebaseUser.getUid());
         mapdata.put("STATUS",user.getSTATUS());
         mapdata.put("PHONE",user.getPHONE());
         mapdata.put("GENDER",user.getGENDER());
         mapdata.put("DOWNLOAD",user.getDOWNLOAD());
+        mapdata.put("BASE64",user.getBASE64());
         usersRef.setValue(mapdata).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {

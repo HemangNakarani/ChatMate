@@ -1,5 +1,6 @@
 package com.hemangnh18.chatmate.ImageViewer;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -15,6 +16,7 @@ import androidx.viewpager.widget.ViewPager;
 import com.hemangnh18.chatmate.DownloadManager.DirectoryHelper;
 import com.hemangnh18.chatmate.DownloadManager.DownloadSongService;
 import com.hemangnh18.chatmate.R;
+import com.hemangnh18.chatmate.info;
 
 import java.util.ArrayList;
 
@@ -77,6 +79,11 @@ public class FullScreenImageViewActivity2 extends AppCompatActivity implements A
         else if(item.getItemId()== R.id.download)
         {
             startService(DownloadSongService.getDownloadService(this, imageDownloadPaths.get(viewPager.getCurrentItem()), DirectoryHelper.ROOT_DIRECTORY_NAME.concat("/")));
+        }
+        else if(item.getItemId()==R.id.about)
+        {
+            //TODO: Passing Details
+                startActivity(new Intent(FullScreenImageViewActivity2.this, info.class));
         }
         return super.onOptionsItemSelected(item);
     }
