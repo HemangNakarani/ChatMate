@@ -22,6 +22,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.gson.Gson;
 import com.hemangnh18.chatmate.Classes.ContactDb;
+import com.hemangnh18.chatmate.Classes.Methods;
 import com.hemangnh18.chatmate.Classes.User;
 import com.hemangnh18.chatmate.Database.DatabaseHandler;
 
@@ -56,21 +57,6 @@ public class ContactsMatching extends ViewModel {
     public void init()
     {
 
-        final TreeSet<User> userSet = new TreeSet<>(new Comparator<User>(){
-            @Override
-            public int compare(User s1, User s2)
-            {
-                try {
-                    return s1.getUSERNAME().toLowerCase().compareTo(s2.getUSERNAME().toLowerCase());
-                }catch (NullPointerException e)
-                {
-                    e.printStackTrace();
-                    return 1;
-
-                }
-
-            }
-        });
 
         final HashSet<ContactDb> arr = new HashSet<>();
         final Map<String, String> namePhoneMap = new HashMap<String, String>();
@@ -108,12 +94,11 @@ public class ContactsMatching extends ViewModel {
                                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
                                         User user = dataSnapshot.getValue(User.class);
+                                        user.setUSERNAME_IN_PHONE(entry.getValue());
                                         handler.addUser(user);
-                                        userSet.add(user);
-                                        userList.clear();
-                                        userList.addAll(userSet);
+                                        userList.add(user);
                                         mContactsList.postValue(userList);
-                                        Log.e("HELLO?>>>>",user.getUSERNAME()+" "+user.getUSER_ID());
+                                        Log.e("HELLO?>>>>",user.getUSERNAME_IN_PHONE()+" "+user.getUSER_ID());
                                         reference1.removeEventListener(this);
                                     }
                                     @Override

@@ -34,6 +34,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.hemangnh18.chatmate.Adapters.ContactUserAdapter;
 import com.hemangnh18.chatmate.Classes.ContactDb;
+import com.hemangnh18.chatmate.Classes.Methods;
 import com.hemangnh18.chatmate.Classes.User;
 import com.hemangnh18.chatmate.Database.DatabaseHandler;
 import com.hemangnh18.chatmate.R;
@@ -41,6 +42,7 @@ import com.hemangnh18.chatmate.Threading.ContactsMatching;
 import com.hemangnh18.chatmate.Threading.ContactsMatchingFactory;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -89,6 +91,7 @@ public class ContactFragment extends Fragment {
                     DatabaseHandler handler = new DatabaseHandler(getContext());
                     contacts.clear();
                     contacts.addAll(handler.getAllUsers());
+                    Collections.sort(contacts,Methods.c);
                     contactUserAdapter.notifyDataSetChanged();
             }
 
@@ -101,9 +104,11 @@ public class ContactFragment extends Fragment {
     private void subscribe() {
         final Observer<ArrayList<User>> elapsedTimeObserver = new Observer<ArrayList<User>>() {
             @Override
-            public void onChanged(@Nullable final ArrayList aLong) {
+            public void onChanged(@Nullable final ArrayList<User> aLong) {
+
                 contacts.clear();
                 contacts.addAll(aLong);
+                Collections.sort(contacts,Methods.c);
                 contactUserAdapter.notifyDataSetChanged();
             }
         };

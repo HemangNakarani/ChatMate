@@ -36,7 +36,7 @@
         app:layout_constraintLeft_toLeftOf="parent">
         <EditText
             android:id="@+id/edittext_chatbox"
-            android:hint="Enter message"
+            android:hint="Type a message..."
             android:background="@android:color/transparent"
             android:layout_gravity="center"
             android:layout_marginLeft="16dp"

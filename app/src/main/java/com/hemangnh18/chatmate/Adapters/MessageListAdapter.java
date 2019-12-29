@@ -9,6 +9,8 @@ import android.widget.TextView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.hemangnh18.chatmate.Classes.Message;
 import com.hemangnh18.chatmate.R;
 
@@ -21,6 +23,7 @@ public class MessageListAdapter extends RecyclerView.Adapter {
     private static final int VIEW_TYPE_MESSAGE_RECEIVED = 2;
 
     private Context mContext;
+    private FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
     private List<Message> mMessageList;
 
     public MessageListAdapter(Context context, List<Message> messageList) {
@@ -39,7 +42,7 @@ public class MessageListAdapter extends RecyclerView.Adapter {
 
         //TODO
         // Check whether message is sent or received
-        if (message.getSender()==currentUser) {
+        if (message.getSender()==firebaseUser.getUid()) {
             // If the current user is the sender of the message
             return VIEW_TYPE_MESSAGE_SENT;
         } else {

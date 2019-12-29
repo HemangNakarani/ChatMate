@@ -6,6 +6,7 @@ import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Pair;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -13,6 +14,7 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -27,14 +29,18 @@ import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
-import com.hemangnh18.chatmate.DownloadManager.DirectoryHelper;
-import com.hemangnh18.chatmate.DownloadManager.DownloadSongService;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.hemangnh18.chatmate.Fragments.ContactFragment;
 import com.hemangnh18.chatmate.Fragments.HomeFragment;
 import com.hemangnh18.chatmate.Fragments.Profilefragment;
 import com.rupins.drawercardbehaviour.CardDrawerLayout;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import eu.long1.spacetablayout.SpaceTabLayout;
@@ -44,6 +50,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private SpaceTabLayout tabLayout;
     private FirebaseAuth mAuth;
     private CardDrawerLayout drawer;
+    DatabaseReference infoConnected = FirebaseDatabase.getInstance().getReference(".info/connected");
     private Window window;
     private ViewPager viewPager;
     private NavigationView navigationView;
@@ -54,8 +61,33 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+
         mAuth = FirebaseAuth.getInstance();
         handler = new Handler();
+
+        DatabaseReference infoConnected = FirebaseDatabase.getInstance().getReference(".info/connected");
+        final DatabaseReference UpdateRef = FirebaseDatabase.getInstance().getReference("/Status/"+mAuth.getUid());
+        infoConnected.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+
+                boolean isCon = dataSnapshot.getValue(Boolean.class);
+                if(isCon)
+                {
+                   DatabaseReference reference = UpdateRef.child("Status");
+                   reference.setValue("Online");
+
+                   reference.onDisconnect().setValue("Offline");
+
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+
 
         final FirebaseUser currentUser = mAuth.getCurrentUser();
         if (currentUser == null) {
@@ -191,6 +223,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
 
     }
+
 
     //----firebase----
     private void SignOut()

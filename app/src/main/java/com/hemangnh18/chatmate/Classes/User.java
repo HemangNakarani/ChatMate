@@ -5,7 +5,15 @@ import android.os.Parcelable;
 
 public class User implements Parcelable {
     private String USERNAME;
+    private String USERNAME_IN_PHONE;
     private String PHONE;
+    private String STATUS;
+    private String USER_ID;
+    private String GENDER;
+    private String DP;
+    private String DOWNLOAD;
+    private String  BASE64;
+    private String ROOM;
 
     public String getBASE64() {
         return BASE64;
@@ -15,14 +23,22 @@ public class User implements Parcelable {
         this.BASE64 = BASE64;
     }
 
-    private String STATUS;
-    private String USER_ID;
-    private String GENDER;
-    private String DP;
-    private String DOWNLOAD;
-    private String  BASE64;
+    public User(String USERNAME, String USERNAME_IN_PHONE, String PHONE, String STATUS, String USER_ID, String GENDER, String DP, String DOWNLOAD, String BASE64, String ROOM) {
+        this.USERNAME = USERNAME;
+        this.USERNAME_IN_PHONE = USERNAME_IN_PHONE;
+        this.PHONE = PHONE;
+        this.STATUS = STATUS;
+        this.USER_ID = USER_ID;
+        this.GENDER = GENDER;
+        this.DP = DP;
+        this.DOWNLOAD = DOWNLOAD;
+        this.BASE64 = BASE64;
+        this.ROOM = ROOM;
+    }
 
-    public User(String USERNAME, String PHONE,String STATUS, String USER_ID, String GENDER, String DP,String DOWNLOAD,String BASE64) {
+
+
+    public User(String USERNAME, String PHONE,String STATUS, String USER_ID, String GENDER, String DP,String DOWNLOAD,String BASE64,String ROOM) {
         this.USERNAME = USERNAME;
         this.PHONE = PHONE;
         this.STATUS = STATUS;
@@ -31,6 +47,7 @@ public class User implements Parcelable {
         this.DP = DP;
         this.DOWNLOAD = DOWNLOAD;
         this.BASE64 = BASE64;
+        this.ROOM = ROOM;
     }
 
 
@@ -41,6 +58,8 @@ public class User implements Parcelable {
         this.DP = "Default";
         this.DOWNLOAD="Default";
         this.BASE64="Default";
+        this.ROOM = "";
+        this.USERNAME_IN_PHONE="";
     }
 
     protected User(Parcel in) {
@@ -52,6 +71,8 @@ public class User implements Parcelable {
         DP = in.readString();
         DOWNLOAD =in.readString();
         BASE64 = in.readString();
+        ROOM = in.readString();
+        USERNAME_IN_PHONE =in.readString();
     }
 
     @Override
@@ -64,6 +85,8 @@ public class User implements Parcelable {
         dest.writeString(DP);
         dest.writeString(DOWNLOAD);
         dest.writeString(BASE64);
+        dest.writeString(ROOM);
+        dest.writeString(USERNAME_IN_PHONE);
     }
 
     @Override
@@ -139,16 +162,34 @@ public class User implements Parcelable {
         this.PHONE = PHONE;
     }
 
+    public String getUSERNAME_IN_PHONE() {
+        return USERNAME_IN_PHONE;
+    }
+
+    public void setUSERNAME_IN_PHONE(String USERNAME_IN_PHONE) {
+        this.USERNAME_IN_PHONE = USERNAME_IN_PHONE;
+    }
+
+    public String getROOM() {
+        return ROOM;
+    }
+
+    public void setROOM(String ROOM) {
+        this.ROOM = ROOM;
+    }
+
     @Override
     public String toString() {
         return "User{" +
                 "USERNAME='" + USERNAME + '\'' +
+                "USERNAME_IN_PHONE='" + USERNAME_IN_PHONE + '\'' +
                 ", PHONE='" + PHONE + '\'' +
                 ", STATUS='" + STATUS + '\'' +
                 ", USER_ID='" + USER_ID + '\'' +
                 ", GENDER='" + GENDER + '\'' +
                 ", DOWNLOAD='" + DOWNLOAD + '\'' +
                 ", BASE64='" + BASE64 + '\'' +
+                ", ROOM='" + ROOM + '\'' +
                 ", DP='" + DP + '\'' +
                 '}';
     }

@@ -2,42 +2,37 @@ package com.hemangnh18.chatmate.Adapters;
 
 import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
-import android.net.Uri;
-import android.provider.ContactsContract;
-import android.util.Base64;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AnimationUtils;
-import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.bumptech.glide.Glide;
 import com.github.tntkhang.fullscreenimageview.library.FullScreenImageViewActivity;
-import com.hemangnh18.chatmate.Classes.ContactDb;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+import com.hemangnh18.chatmate.Classes.Methods;
+import com.hemangnh18.chatmate.Classes.Room;
 import com.hemangnh18.chatmate.Classes.User;
 import com.hemangnh18.chatmate.Compressing.Converter;
+import com.hemangnh18.chatmate.Database.DatabaseHandler;
 import com.hemangnh18.chatmate.ImageViewer.FullScreenImageViewActivity2;
-import com.hemangnh18.chatmate.MainActivity;
+import com.hemangnh18.chatmate.MessageActivity;
 import com.hemangnh18.chatmate.R;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -52,7 +47,6 @@ public class ContactUserAdapter extends RecyclerView.Adapter<ContactUserAdapter.
         this.mUsers = users;
     }
 
-
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -63,21 +57,73 @@ public class ContactUserAdapter extends RecyclerView.Adapter<ContactUserAdapter.
     @Override
     public void onBindViewHolder(@NonNull final ViewHolder holder, int position) {
 
-        final int k =position;
+        final int k = position;
         holder.cardView.setAnimation(AnimationUtils.loadAnimation(mContext,R.anim.fade_scale_animation));
         holder.username.setAnimation(AnimationUtils.loadAnimation(mContext,R.anim.fade_scale_animation));
         holder.ststus.setAnimation(AnimationUtils.loadAnimation(mContext,R.anim.fade_scale_animation));
 
+        holder.cardView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
 
-        String pp=getContactName(mUsers.get(k).getPHONE(),mContext);
-        if(!pp.equals(""))
-        {
-            holder.username.setText(pp);
-        }
-        else
-        {
-            holder.username.setText(mUsers.get(k).getPHONE());
-        }
+                final DatabaseHandler handler= new DatabaseHandler(mContext);
+                String roomid =  handler.getRoom(mUsers.get(k).getPHONE());
+                Toast.makeText(mContext,roomid,Toast.LENGTH_LONG).show();
+                if(roomid.equals(""))
+                {
+                    if(Methods.hasConnection(mContext))
+                    {
+                        FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+                        final DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Connections").child(firebaseUser.getUid()).child(mUsers.get(k).getUSER_ID());
+                        final DatabaseReference reference2 = FirebaseDatabase.getInstance().getReference("Connections").child(mUsers.get(k).getUSER_ID()).child(firebaseUser.getUid());
+
+                        reference.addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                if(dataSnapshot.exists())
+                                {
+                                    Room room = dataSnapshot.getValue(Room.class);
+                                    mUsers.get(k).setROOM(room.getId());
+                                    handler.addUserRoom(mUsers.get(k).getPHONE(),room.getId());
+                                    mContext.startActivity(new Intent(mContext, MessageActivity.class).putExtra("who",mUsers.get(k).toString()));
+                                }
+                                else
+                                {
+                                    String id = UUID.randomUUID().toString();
+                                    reference.setValue(new Room(id));
+                                    reference2.setValue(new Room(id));
+                                    mUsers.get(k).setROOM(id);
+                                    handler.addUserRoom(mUsers.get(k).getPHONE(),id);
+                                    mContext.startActivity(new Intent(mContext,MessageActivity.class).putExtra("who",id));
+                                }
+
+                            }
+
+                            @Override
+                            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                            }
+                        });
+
+                    }
+                    else
+                    {
+                        Toast.makeText(mContext,"Check Your Connection",Toast.LENGTH_LONG).show();
+                    }
+
+                }
+                else
+                {
+                    //Toast.makeText(mContext,"YOU R LIT",Toast.LENGTH_LONG).show();
+                    mUsers.get(k).setROOM(roomid);
+                    mContext.startActivity(new Intent(mContext,MessageActivity.class).putExtra("who",mUsers.get(k).getROOM()));
+                }
+
+            }
+        });
+
+
+        holder.username.setText(mUsers.get(k).getUSERNAME_IN_PHONE());
 
         if(mUsers.get(k).getBASE64().equals("Default"))
         {
@@ -143,36 +189,4 @@ public class ContactUserAdapter extends RecyclerView.Adapter<ContactUserAdapter.
 
     }
 
-
-    public String getContactName(final String phoneNumber, Context context)
-    {
-        Uri uri= Uri.withAppendedPath(ContactsContract.PhoneLookup.CONTENT_FILTER_URI,Uri.encode(phoneNumber));
-
-        String[] projection = new String[]{ContactsContract.PhoneLookup.DISPLAY_NAME};
-
-        String contactName="";
-        Cursor cursor=context.getContentResolver().query(uri,projection,null,null,null);
-
-        if (cursor != null) {
-            if(cursor.moveToFirst()) {
-                contactName=cursor.getString(0);
-            }
-            cursor.close();
-        }
-
-        return contactName;
-    }
-
-    boolean hasConnection()
-    {
-        ConnectivityManager cm =
-                (ConnectivityManager)mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
-
-        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
-        boolean isConnected = activeNetwork != null &&
-                activeNetwork.isConnectedOrConnecting();
-
-        if(isConnected) {return  true;}
-        else {return false;}
-    }
 }
