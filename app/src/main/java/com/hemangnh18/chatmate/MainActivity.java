@@ -6,6 +6,7 @@ import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.util.Pair;
 import android.view.Gravity;
 import android.view.Menu;
@@ -24,6 +25,8 @@ import androidx.core.view.GravityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.viewpager.widget.ViewPager;
 
+import com.github.nkzawa.socketio.client.IO;
+import com.github.nkzawa.socketio.client.Socket;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
@@ -37,8 +40,14 @@ import com.google.firebase.database.ValueEventListener;
 import com.hemangnh18.chatmate.Fragments.ContactFragment;
 import com.hemangnh18.chatmate.Fragments.HomeFragment;
 import com.hemangnh18.chatmate.Fragments.Profilefragment;
+import com.hemangnh18.chatmate.Socket.SocketHandler;
+import com.hemangnh18.chatmate.Socket.SocketMethods;
 import com.rupins.drawercardbehaviour.CardDrawerLayout;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -48,13 +57,30 @@ import eu.long1.spacetablayout.SpaceTabLayout;
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener{
 
     private SpaceTabLayout tabLayout;
+    private SocketMethods socketMethods;
     private FirebaseAuth mAuth;
     private CardDrawerLayout drawer;
-    DatabaseReference infoConnected = FirebaseDatabase.getInstance().getReference(".info/connected");
+    private DatabaseReference infoConnected = FirebaseDatabase.getInstance().getReference(".info/connected");
     private Window window;
     private ViewPager viewPager;
     private NavigationView navigationView;
     private Handler handler;
+    private Boolean hasConnection = false;
+    private Socket mSocket;
+    {
+        try {
+            IO.Options opts = new IO.Options();
+            opts.reconnection = true;
+            opts.reconnectionDelay =1000;
+            opts.transports = new String[]{"websocket"};
+            opts.reconnectionDelayMax=5000;
+            opts.upgrade= false;
+            opts.reconnectionAttempts= 1000000;
+            mSocket = IO.socket("https://afternoon-harbor-46312.herokuapp.com/",opts);
+            SocketHandler.setSocket(mSocket);
+
+        } catch (URISyntaxException e) {}
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,6 +90,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         mAuth = FirebaseAuth.getInstance();
         handler = new Handler();
+        socketMethods = new SocketMethods(MainActivity.this);
+
+        final FirebaseUser currentUser = mAuth.getCurrentUser();
+        if (currentUser == null) {
+            startActivity(new Intent(this, AuthenticationActivity.class));
+            finish();
+        }
+
+
 
         DatabaseReference infoConnected = FirebaseDatabase.getInstance().getReference(".info/connected");
         final DatabaseReference UpdateRef = FirebaseDatabase.getInstance().getReference("/Status/"+mAuth.getUid());
@@ -88,12 +123,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
         });
 
-
-        final FirebaseUser currentUser = mAuth.getCurrentUser();
-        if (currentUser == null) {
-            startActivity(new Intent(this, AuthenticationActivity.class));
-            finish();
-        }
 
         //----bottom navigation----
         List<Fragment> fragmentList = new ArrayList<>();
@@ -152,6 +181,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         drawer.setRadius(Gravity.START, 35);
         drawer.setViewElevation(Gravity.START, 20);
 
+        //---INIT SOCKET-----
+        Init(savedInstanceState);
+
     }
 
     //----navigation drawer----
@@ -193,6 +225,36 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     }
 
+
+    //-----SOCKET SETTINGS INITIALIZE------
+    private void Init(Bundle savedInstanceState)
+    {
+        if(savedInstanceState != null){
+            hasConnection = savedInstanceState.getBoolean("hasConnection");
+        }
+
+        if(hasConnection)
+        { }else {
+            mSocket.connect();
+            mSocket.on("connect user", socketMethods.onNewUser);
+            mSocket.on("chat message",socketMethods.onNewMessage);
+            mSocket.on("on typing", socketMethods.onTyping);
+            mSocket.on("Establish", socketMethods.Establish);
+
+            JSONObject userId = new JSONObject();
+            try {
+                userId.put("username",FirebaseAuth.getInstance().getCurrentUser().getPhoneNumber());
+                mSocket.emit("connect user", userId);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+
+        Log.i("CONNECTION STATUS>>>>", "onCreate: " + hasConnection);
+        hasConnection = true;
+    }
+
+    //----delay---------
     public void delay(){
         handler.postDelayed(new Runnable() {
             @Override
@@ -252,4 +314,28 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         alert.show();
     }
 
+
+
+    @Override
+    public void onDestroy() {
+
+        super.onDestroy();
+
+
+        if(isFinishing()){
+
+            mSocket.emit("disconnect");
+            Log.e("DESTROYING MAIN", "onDestroy: ");
+
+            mSocket.disconnect();
+            mSocket.off("chat message",socketMethods.onNewMessage);
+            mSocket.off("connect user", socketMethods.onNewUser);
+            mSocket.off("on typing", socketMethods.onTyping);
+            mSocket.off("hey", socketMethods.Establish);
+
+        }else {
+            Log.i("DESTROYED ACTIVITY>>>>", "onDestroy: is rotating.....");
+        }
+
+    }
 }

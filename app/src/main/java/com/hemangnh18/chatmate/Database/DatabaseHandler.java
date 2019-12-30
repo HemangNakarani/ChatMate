@@ -158,7 +158,42 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
     }
 
-/*
+
+    public User getUser(String id) {
+
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.query(TABLE_CONTACTS, null, KEY_USER_ID + "=?",
+                new String[] { String.valueOf(id) }, null, null, null, null);
+
+        try
+        {
+            cursor.moveToFirst();
+            User user = new User();
+            user.setUSERNAME(cursor.getString(1));
+            user.setUSERNAME_IN_PHONE(cursor.getString(2));
+            user.setPHONE(cursor.getString(3));
+            user.setUSER_ID(cursor.getString(4));
+            user.setDOWNLOAD(cursor.getString(5));
+            user.setBASE64(cursor.getString(6));
+            user.setSTATUS(cursor.getString(7));
+            user.setGENDER(cursor.getString(8));
+
+            return user;
+        }
+        catch (NullPointerException e)
+        {
+            e.printStackTrace();
+            return new User();
+        }
+        catch (CursorIndexOutOfBoundsException e)
+        {
+            e.printStackTrace();
+            return new User();
+        }
+
+    }
+
+    /*
     public void deleteContact(Student contact) {
         SQLiteDatabase db = this.getWritableDatabase();
         db.delete(TABLE_CONTACTS, KEY_ID + " = ?",

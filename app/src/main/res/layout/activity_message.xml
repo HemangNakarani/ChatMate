@@ -18,7 +18,7 @@
         android:theme="@style/ThemeOverlay.AppCompat.Dark"
         android:contextClickable="true"
         app:titleMarginStart="24dp"
-        app:logo="@drawable/smiley"
+        app:logo="@drawable/smily"
         app:title="hello"/>
 
     <androidx.recyclerview.widget.RecyclerView
@@ -40,7 +40,7 @@
 
     <LinearLayout
         android:id="@+id/layout_chatbox"
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="#ffffff"
         android:minHeight="48dp"
@@ -52,30 +52,33 @@
         <ImageView
             android:id="@+id/emoji_btn"
             android:layout_width="40dp"
+            android:src="@drawable/smily"
             android:layout_height="40dp"
             android:layout_gravity="center"
-            android:padding="4dp"
-            android:src="@drawable/smiley" />
+            android:padding="4dp" />
 
-        <hani.momanii.supernova_emoji_library.Helper.EmojiconEditText
+        <com.vanniktech.emoji.EmojiEditText
             android:id="@+id/edittext_chatbox"
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
+            android:layout_gravity="center_vertical"
+            android:scrollbars="vertical"
+            android:fadeScrollbars="false"
+            android:inputType="textMultiLine|textCapSentences"
+            android:maxLines="6"
+            android:minLines="1"
             android:layout_marginLeft="16dp"
             android:layout_marginRight="16dp"
             android:layout_weight="1"
             android:background="@android:color/transparent"
             android:hint="Type a message..."
-            android:imeOptions="actionSend"
-            android:inputType="text"
-            android:maxLines="6"
-            emojicon:emojiconSize="28sp" />
+            android:imeOptions="actionPrevious" />
 
         <Button
             android:id="@+id/button_chatbox_send"
             android:layout_width="64dp"
             android:layout_height="48dp"
+            android:onClick="sendMessage"
             android:layout_gravity="bottom"
             android:background="?attr/selectableItemBackground"
             android:clickable="true"

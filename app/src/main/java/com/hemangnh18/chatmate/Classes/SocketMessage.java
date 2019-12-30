@@ -1,6 +1,7 @@
 package com.hemangnh18.chatmate.Classes;
 
-public class Message {
+public class SocketMessage {
+
     private String Message;
     private String Sender;
     private String Reciever;
@@ -8,9 +9,9 @@ public class Message {
     private String Room;
     private String Type;
 
-    public Message() {}
+    public SocketMessage() {}
 
-    public Message(String message, String sender, String reciever, String time, String room, String type) {
+    public SocketMessage(String message, String sender, String reciever, String time, String room, String type) {
         Message = message;
         Sender = sender;
         Reciever = reciever;

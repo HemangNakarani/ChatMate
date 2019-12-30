@@ -21,12 +21,14 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.gson.Gson;
 import com.hemangnh18.chatmate.Classes.Methods;
 import com.hemangnh18.chatmate.Classes.Room;
 import com.hemangnh18.chatmate.Classes.User;
 import com.hemangnh18.chatmate.Compressing.Converter;
 import com.hemangnh18.chatmate.Database.DatabaseHandler;
 import com.hemangnh18.chatmate.ImageViewer.FullScreenImageViewActivity2;
+import com.hemangnh18.chatmate.MainActivity;
 import com.hemangnh18.chatmate.MessageActivity;
 import com.hemangnh18.chatmate.R;
 
@@ -66,58 +68,9 @@ public class ContactUserAdapter extends RecyclerView.Adapter<ContactUserAdapter.
             @Override
             public void onClick(View v) {
 
-                final DatabaseHandler handler= new DatabaseHandler(mContext);
-                String roomid =  handler.getRoom(mUsers.get(k).getPHONE());
-                Toast.makeText(mContext,roomid,Toast.LENGTH_LONG).show();
-                if(roomid.equals(""))
-                {
-                    if(Methods.hasConnection(mContext))
-                    {
-                        FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-                        final DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Connections").child(firebaseUser.getUid()).child(mUsers.get(k).getUSER_ID());
-                        final DatabaseReference reference2 = FirebaseDatabase.getInstance().getReference("Connections").child(mUsers.get(k).getUSER_ID()).child(firebaseUser.getUid());
-
-                        reference.addListenerForSingleValueEvent(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                                if(dataSnapshot.exists())
-                                {
-                                    Room room = dataSnapshot.getValue(Room.class);
-                                    mUsers.get(k).setROOM(room.getId());
-                                    handler.addUserRoom(mUsers.get(k).getPHONE(),room.getId());
-                                    mContext.startActivity(new Intent(mContext, MessageActivity.class).putExtra("who",mUsers.get(k).toString()));
-                                }
-                                else
-                                {
-                                    String id = UUID.randomUUID().toString();
-                                    reference.setValue(new Room(id));
-                                    reference2.setValue(new Room(id));
-                                    mUsers.get(k).setROOM(id);
-                                    handler.addUserRoom(mUsers.get(k).getPHONE(),id);
-                                    mContext.startActivity(new Intent(mContext,MessageActivity.class).putExtra("who",id));
-                                }
-
-                            }
-
-                            @Override
-                            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                            }
-                        });
-
-                    }
-                    else
-                    {
-                        Toast.makeText(mContext,"Check Your Connection",Toast.LENGTH_LONG).show();
-                    }
-
-                }
-                else
-                {
-                    //Toast.makeText(mContext,"YOU R LIT",Toast.LENGTH_LONG).show();
-                    mUsers.get(k).setROOM(roomid);
-                    mContext.startActivity(new Intent(mContext,MessageActivity.class).putExtra("who",mUsers.get(k).getROOM()));
-                }
+                Intent it= new Intent(mContext,MessageActivity.class);
+                it.putExtra("Opposite",mUsers.get(k).getUSER_ID());
+                mContext.startActivity(it);
 
             }
         });

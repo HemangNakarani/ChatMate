@@ -1,16 +1,22 @@
 package com.hemangnh18.chatmate.Classes;
 
+import android.app.Activity;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.provider.ContactsContract;
+import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 
 import java.util.Comparator;
 
 
 public class Methods {
+
+
+    //TODO GIVEN TIME IS CURRENTTIME IN MILLS, CHANGE IN APPROPRIATE FORM TODAY,YESTERDAY,OR DATE all with time;
 
     public static String getContactName(final String phoneNumber, Context context)
     {
@@ -42,6 +48,16 @@ public class Methods {
 
         if(isConnected) {return  true;}
         else {return false;}
+    }
+
+    public static void CloseKeyboard(Activity activity)
+    {
+        InputMethodManager imm = (InputMethodManager) activity.getSystemService(Activity.INPUT_METHOD_SERVICE);
+        View view = activity.getCurrentFocus();
+        if (view == null) {
+            view = new View(activity);
+        }
+        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
     }
 
 
