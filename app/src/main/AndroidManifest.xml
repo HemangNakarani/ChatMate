@@ -30,6 +30,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".AuthenticationActivity" />
+
         <activity
             android:name=".ImageViewer.FullScreenImageViewActivity2"
             android:theme="@style/Theme.AppCompat.NoActionBar" />

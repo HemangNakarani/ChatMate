@@ -89,17 +89,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
 
         mAuth = FirebaseAuth.getInstance();
-        handler = new Handler();
-        socketMethods = new SocketMethods(MainActivity.this);
-
         final FirebaseUser currentUser = mAuth.getCurrentUser();
         if (currentUser == null) {
             startActivity(new Intent(this, AuthenticationActivity.class));
             finish();
         }
 
-
-
+        handler = new Handler();
+        socketMethods = new SocketMethods(MainActivity.this);
         DatabaseReference infoConnected = FirebaseDatabase.getInstance().getReference(".info/connected");
         final DatabaseReference UpdateRef = FirebaseDatabase.getInstance().getReference("/Status/"+mAuth.getUid());
         infoConnected.addValueEventListener(new ValueEventListener() {
@@ -182,7 +179,32 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         drawer.setViewElevation(Gravity.START, 20);
 
         //---INIT SOCKET-----
-        Init(savedInstanceState);
+        if(savedInstanceState != null){
+            hasConnection = savedInstanceState.getBoolean("hasConnection");
+        }
+
+        if(hasConnection)
+        { }else {
+            mSocket.connect();
+            mSocket.on("connect user", socketMethods.onNewUser);
+            mSocket.on("chat message",socketMethods.onNewMessage);
+            mSocket.on("on typing", socketMethods.onTyping);
+            mSocket.on("Establish", socketMethods.Establish);
+
+            JSONObject userId = new JSONObject();
+
+            try {
+                if(FirebaseAuth.getInstance().getCurrentUser()!=null) {
+                    userId.put("username", FirebaseAuth.getInstance().getCurrentUser().getPhoneNumber());
+                    mSocket.emit("connect user", userId);
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+
+        Log.i("CONNECTION STATUS>>>>", "onCreate: " + hasConnection);
+        hasConnection = true;
 
     }
 
@@ -226,33 +248,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
 
-    //-----SOCKET SETTINGS INITIALIZE------
-    private void Init(Bundle savedInstanceState)
-    {
-        if(savedInstanceState != null){
-            hasConnection = savedInstanceState.getBoolean("hasConnection");
-        }
-
-        if(hasConnection)
-        { }else {
-            mSocket.connect();
-            mSocket.on("connect user", socketMethods.onNewUser);
-            mSocket.on("chat message",socketMethods.onNewMessage);
-            mSocket.on("on typing", socketMethods.onTyping);
-            mSocket.on("Establish", socketMethods.Establish);
-
-            JSONObject userId = new JSONObject();
-            try {
-                userId.put("username",FirebaseAuth.getInstance().getCurrentUser().getPhoneNumber());
-                mSocket.emit("connect user", userId);
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-        }
-
-        Log.i("CONNECTION STATUS>>>>", "onCreate: " + hasConnection);
-        hasConnection = true;
-    }
 
     //----delay---------
     public void delay(){

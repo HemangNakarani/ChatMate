@@ -10,6 +10,8 @@ import android.provider.ContactsContract;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 
+import com.vanniktech.emoji.EmojiEditText;
+
 import java.util.Comparator;
 
 
@@ -57,9 +59,17 @@ public class Methods {
         if (view == null) {
             view = new View(activity);
         }
+
         imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
     }
 
+    public static void OpenKeyboard(Activity activity, EmojiEditText text)
+    {
+        InputMethodManager imm = (InputMethodManager) activity.getSystemService(Activity.INPUT_METHOD_SERVICE);
+        imm.toggleSoftInputFromWindow(text.getApplicationWindowToken(), InputMethodManager.SHOW_FORCED, 0);
+
+
+    }
 
     public static Comparator<User> c = new Comparator<User>()
     {

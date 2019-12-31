@@ -5,6 +5,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
@@ -14,6 +15,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Toast;
@@ -27,6 +29,7 @@ import com.vanniktech.emoji.EmojiEditText;
 import com.vanniktech.emoji.EmojiManager;
 import com.vanniktech.emoji.EmojiPopup;
 import com.vanniktech.emoji.ios.IosEmojiProvider;
+import com.vanniktech.emoji.listeners.OnSoftKeyboardCloseListener;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -43,7 +46,8 @@ public class MessageActivity extends AppCompatActivity {
     private List<SocketMessage> messageList;
 
     private String OppositeUid;
-    private Button sendButton;
+    private ImageButton sendButton;
+    private EmojiPopup emojiPopup;
     private LinearLayout chatbox;
     private EmojiEditText textField;
     private ImageView emoji;
@@ -70,10 +74,13 @@ public class MessageActivity extends AppCompatActivity {
         chatbox = findViewById(R.id.layout_chatbox);
         emoji = findViewById(R.id.emoji_btn);
         toolbar = findViewById(R.id.toolbar);
+        emojiPopup = EmojiPopup.Builder.fromRootView(chatbox).setBackgroundColor(Color.parseColor("#F2DBF7")).setKeyboardAnimationStyle(R.style.emoji_fade_animation_style).setOnSoftKeyboardCloseListener(new OnSoftKeyboardCloseListener() {
+            @Override
+            public void onKeyboardClose() {
+                emoji.setImageDrawable(getResources().getDrawable((R.drawable.smily)));
+            }
+        }).build(textField);
 
-        emoji.setImageDrawable(getResources().getDrawable((R.drawable.smily)));
-
-        final EmojiPopup emojiPopup = EmojiPopup.Builder.fromRootView(chatbox).build(textField);
         emoji.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -92,8 +99,11 @@ public class MessageActivity extends AppCompatActivity {
             }
         });
 
-        messageList = new ArrayList<>();
 
+
+
+
+        messageList = new ArrayList<>();
         mMessageRecycler = findViewById(R.id.reyclerview_message_list);
         mMessageAdapter = new MessageListAdapter(this, messageList,OppositeUid);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
@@ -108,13 +118,13 @@ public class MessageActivity extends AppCompatActivity {
 
         String message = textField.getText().toString().trim();
 
-        SocketMessage socketMessage = new SocketMessage(message,FirebaseAuth.getInstance().getCurrentUser().getUid(),OppositeUid,String.valueOf(System.currentTimeMillis()),OppositeUid,"text");
-        appendMessage(socketMessage);
-
         if(TextUtils.isEmpty(message)){
             return;
         }
         textField.setText("");
+        SocketMessage socketMessage = new SocketMessage(message,FirebaseAuth.getInstance().getCurrentUser().getUid(),OppositeUid,String.valueOf(System.currentTimeMillis()),OppositeUid,"text");
+        appendMessage(socketMessage);
+
         JSONObject jsonObject = new JSONObject();
         try {
             jsonObject.put("message", message);
@@ -183,5 +193,15 @@ public class MessageActivity extends AppCompatActivity {
     public void onStop() {
         super.onStop();
         EventBus.getDefault().unregister(this);
+    }
+
+
+    public void ShowKeyboard(View view)
+    {
+        if(emojiPopup.isShowing())
+        {
+            emojiPopup.dismiss();
+            emoji.setImageDrawable(getResources().getDrawable((R.drawable.smily)));
+        }
     }
 }
