@@ -72,7 +72,7 @@ public class MessageActivity extends AppCompatActivity {
     private ImageView emoji;
     private Toolbar toolbar;
     private Boolean isOnline=false;
-    private ImageButton mScrollDown;
+    private Button mScrollDown;
 
 
     @Override
@@ -129,11 +129,10 @@ public class MessageActivity extends AppCompatActivity {
         mScrollDown.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mMessageRecycler.scrollToPosition(messageList.size()-1);
+                mMessageRecycler.smoothScrollToPosition(messageList.size()-1);
                 mScrollDown.setVisibility(View.INVISIBLE);
             }
         });
-
 
         emojiPopup = EmojiPopup.Builder.fromRootView(chatbox).setBackgroundColor(Color.parseColor("#F2DBF7")).setKeyboardAnimationStyle(R.style.emoji_fade_animation_style).setOnSoftKeyboardCloseListener(new OnSoftKeyboardCloseListener() {
             @Override

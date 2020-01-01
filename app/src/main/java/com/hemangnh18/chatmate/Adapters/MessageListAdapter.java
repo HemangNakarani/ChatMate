@@ -121,10 +121,15 @@ public class MessageListAdapter extends RecyclerView.Adapter {
 
             profileImage.setImageBitmap(Converter.Base642Bitmap(oppositeUser.getBASE64()));
 
-            SocketMessage message1 = mMessageList.get(position-1);
-            if(message1.getSender()==message.getSender()){
-                nameText.setVisibility(View.GONE);
-                profileImage.setVisibility(View.GONE);
+            if(position!=0){
+                SocketMessage message1 = mMessageList.get(position-1);
+                if(message1.getSender().equals(message.getSender())){
+                    nameText.setVisibility(View.GONE);
+                    profileImage.setVisibility(View.INVISIBLE);
+                }else {
+                    nameText.setVisibility(View.VISIBLE);
+                    profileImage.setVisibility(View.VISIBLE);
+                }
             }
         }
     }
