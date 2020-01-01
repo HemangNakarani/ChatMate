@@ -13,7 +13,7 @@ public class User implements Parcelable {
     private String DP;
     private String DOWNLOAD;
     private String  BASE64;
-    private String ROOM;
+    private String TOKEN;
 
     public String getBASE64() {
         return BASE64;
@@ -23,7 +23,7 @@ public class User implements Parcelable {
         this.BASE64 = BASE64;
     }
 
-    public User(String USERNAME, String USERNAME_IN_PHONE, String PHONE, String STATUS, String USER_ID, String GENDER, String DP, String DOWNLOAD, String BASE64, String ROOM) {
+    public User(String USERNAME, String USERNAME_IN_PHONE, String PHONE, String STATUS, String USER_ID, String GENDER, String DP, String DOWNLOAD, String BASE64, String TOKEN) {
         this.USERNAME = USERNAME;
         this.USERNAME_IN_PHONE = USERNAME_IN_PHONE;
         this.PHONE = PHONE;
@@ -33,12 +33,12 @@ public class User implements Parcelable {
         this.DP = DP;
         this.DOWNLOAD = DOWNLOAD;
         this.BASE64 = BASE64;
-        this.ROOM = ROOM;
+        this.TOKEN = TOKEN;
     }
 
 
 
-    public User(String USERNAME, String PHONE,String STATUS, String USER_ID, String GENDER, String DP,String DOWNLOAD,String BASE64,String ROOM) {
+    public User(String USERNAME, String PHONE,String STATUS, String USER_ID, String GENDER, String DP,String DOWNLOAD,String BASE64,String TOKEN) {
         this.USERNAME = USERNAME;
         this.PHONE = PHONE;
         this.STATUS = STATUS;
@@ -47,7 +47,7 @@ public class User implements Parcelable {
         this.DP = DP;
         this.DOWNLOAD = DOWNLOAD;
         this.BASE64 = BASE64;
-        this.ROOM = ROOM;
+        this.TOKEN = TOKEN;
     }
 
 
@@ -58,7 +58,7 @@ public class User implements Parcelable {
         this.DP = "Default";
         this.DOWNLOAD="Default";
         this.BASE64="Default";
-        this.ROOM = "";
+        this.TOKEN = "";
         this.USERNAME_IN_PHONE="";
     }
 
@@ -71,7 +71,7 @@ public class User implements Parcelable {
         DP = in.readString();
         DOWNLOAD =in.readString();
         BASE64 = in.readString();
-        ROOM = in.readString();
+        TOKEN = in.readString();
         USERNAME_IN_PHONE =in.readString();
     }
 
@@ -85,7 +85,7 @@ public class User implements Parcelable {
         dest.writeString(DP);
         dest.writeString(DOWNLOAD);
         dest.writeString(BASE64);
-        dest.writeString(ROOM);
+        dest.writeString(TOKEN);
         dest.writeString(USERNAME_IN_PHONE);
     }
 
@@ -170,12 +170,12 @@ public class User implements Parcelable {
         this.USERNAME_IN_PHONE = USERNAME_IN_PHONE;
     }
 
-    public String getROOM() {
-        return ROOM;
+    public String getTOKEN() {
+        return TOKEN;
     }
 
-    public void setROOM(String ROOM) {
-        this.ROOM = ROOM;
+    public void setTOKEN(String ROOM) {
+        this.TOKEN = ROOM;
     }
 
     @Override
@@ -189,7 +189,7 @@ public class User implements Parcelable {
                 ", GENDER='" + GENDER + '\'' +
                 ", DOWNLOAD='" + DOWNLOAD + '\'' +
                 ", BASE64='" + BASE64 + '\'' +
-                ", ROOM='" + ROOM + '\'' +
+                ", TOKEN='" + TOKEN + '\'' +
                 ", DP='" + DP + '\'' +
                 '}';
     }

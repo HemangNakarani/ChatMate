@@ -14,6 +14,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
@@ -27,6 +28,8 @@ import androidx.viewpager.widget.ViewPager;
 
 import com.github.nkzawa.socketio.client.IO;
 import com.github.nkzawa.socketio.client.Socket;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
@@ -37,6 +40,8 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.iid.InstanceIdResult;
 import com.hemangnh18.chatmate.Fragments.ContactFragment;
 import com.hemangnh18.chatmate.Fragments.HomeFragment;
 import com.hemangnh18.chatmate.Fragments.Profilefragment;
@@ -208,6 +213,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     }
 
+
     //----navigation drawer----
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
@@ -331,6 +337,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }else {
             Log.i("DESTROYED ACTIVITY>>>>", "onDestroy: is rotating.....");
         }
+    }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        FirebaseDatabase.getInstance().getReference("/Status/"+mAuth.getUid()).child("Status").setValue("Online");
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        FirebaseDatabase.getInstance().getReference("/Status/"+mAuth.getUid()).child("Status").setValue("Offline");
     }
 }

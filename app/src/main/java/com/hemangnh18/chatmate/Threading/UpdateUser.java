@@ -60,6 +60,7 @@ public class UpdateUser extends AsyncTask<User, Void, Void> {
         mapdata.put("GENDER",user.getGENDER());
         mapdata.put("DOWNLOAD",user.getDOWNLOAD());
         mapdata.put("BASE64",user.getBASE64());
+        mapdata.put("TOKEN",user.getTOKEN());
         usersRef.setValue(mapdata).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {

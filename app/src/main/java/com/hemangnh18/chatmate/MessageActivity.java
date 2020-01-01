@@ -1,5 +1,6 @@
 package com.hemangnh18.chatmate;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -21,9 +22,20 @@ import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.hemangnh18.chatmate.Adapters.MessageListAdapter;
 import com.hemangnh18.chatmate.Classes.Methods;
 import com.hemangnh18.chatmate.Classes.SocketMessage;
+import com.hemangnh18.chatmate.Classes.User;
+import com.hemangnh18.chatmate.Database.DatabaseHandler;
+import com.hemangnh18.chatmate.FCM.APIService;
+import com.hemangnh18.chatmate.FCM.Client;
+import com.hemangnh18.chatmate.FCM.MyResponse;
+import com.hemangnh18.chatmate.FCM.SenderBox;
 import com.hemangnh18.chatmate.Socket.SocketHandler;
 import com.vanniktech.emoji.EmojiEditText;
 import com.vanniktech.emoji.EmojiManager;
@@ -39,12 +51,17 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 public class MessageActivity extends AppCompatActivity {
 
     private RecyclerView mMessageRecycler;
     private MessageListAdapter mMessageAdapter;
     private List<SocketMessage> messageList;
-
+    private APIService apiService;
+    private User oppositeUser= new User();
     private String OppositeUid;
     private ImageButton sendButton;
     private EmojiPopup emojiPopup;
@@ -52,6 +69,7 @@ public class MessageActivity extends AppCompatActivity {
     private EmojiEditText textField;
     private ImageView emoji;
     private Toolbar toolbar;
+    private Boolean isOnline=false;
 
 
     @Override
@@ -67,13 +85,44 @@ public class MessageActivity extends AppCompatActivity {
         EmojiManager.install(new IosEmojiProvider());
         setContentView(R.layout.activity_message);
 
+
+        DatabaseReference infoConnected = FirebaseDatabase.getInstance().getReference(".info/connected");
+        final DatabaseReference UpdateRef = FirebaseDatabase.getInstance().getReference("/Status/"+FirebaseAuth.getInstance().getCurrentUser().getUid());
+        infoConnected.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+
+                boolean isCon = dataSnapshot.getValue(Boolean.class);
+                if(isCon)
+                {
+                    DatabaseReference reference = UpdateRef.child("Status");
+                    reference.setValue("Online");
+
+                    reference.onDisconnect().setValue("Offline");
+
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+
+        apiService = Client.getClient("https://fcm.googleapis.com/").create(APIService.class);
+        DatabaseHandler handler = new DatabaseHandler(MessageActivity.this);
         textField= findViewById(R.id.edittext_chatbox);
         sendButton = findViewById(R.id.button_chatbox_send);
         OppositeUid = getIntent().getStringExtra("Opposite");
+        Check(OppositeUid);
+        oppositeUser = handler.getUser(OppositeUid);
         textField.setText(OppositeUid);
         chatbox = findViewById(R.id.layout_chatbox);
         emoji = findViewById(R.id.emoji_btn);
         toolbar = findViewById(R.id.toolbar);
+
+
+
         emojiPopup = EmojiPopup.Builder.fromRootView(chatbox).setBackgroundColor(Color.parseColor("#F2DBF7")).setKeyboardAnimationStyle(R.style.emoji_fade_animation_style).setOnSoftKeyboardCloseListener(new OnSoftKeyboardCloseListener() {
             @Override
             public void onKeyboardClose() {
@@ -100,14 +149,11 @@ public class MessageActivity extends AppCompatActivity {
         });
 
 
-
-
-
         messageList = new ArrayList<>();
         mMessageRecycler = findViewById(R.id.reyclerview_message_list);
         mMessageAdapter = new MessageListAdapter(this, messageList,OppositeUid);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
-        linearLayoutManager.setReverseLayout(true);
+        //linearLayoutManager.setReverseLayout(true);
         linearLayoutManager.setStackFromEnd(true);
         mMessageRecycler.setLayoutManager(linearLayoutManager);
         mMessageRecycler.setAdapter(mMessageAdapter);
@@ -118,26 +164,73 @@ public class MessageActivity extends AppCompatActivity {
 
         String message = textField.getText().toString().trim();
 
-        if(TextUtils.isEmpty(message)){
+        if (TextUtils.isEmpty(message)) {
             return;
         }
         textField.setText("");
-        SocketMessage socketMessage = new SocketMessage(message,FirebaseAuth.getInstance().getCurrentUser().getUid(),OppositeUid,String.valueOf(System.currentTimeMillis()),OppositeUid,"text");
+        SocketMessage socketMessage = new SocketMessage(message, FirebaseAuth.getInstance().getCurrentUser().getUid(), OppositeUid, String.valueOf(System.currentTimeMillis()), OppositeUid, "text");
         appendMessage(socketMessage);
 
-        JSONObject jsonObject = new JSONObject();
-        try {
-            jsonObject.put("message", message);
-            jsonObject.put("sender", FirebaseAuth.getInstance().getCurrentUser().getUid());
-            jsonObject.put("reciever", OppositeUid);
-            jsonObject.put("time",System.currentTimeMillis());
-            jsonObject.put("type","text");
+        if(isOnline) {
 
-        } catch (JSONException e) {
-            e.printStackTrace();
+            JSONObject jsonObject = new JSONObject();
+            try {
+                jsonObject.put("message", message);
+                jsonObject.put("sender", FirebaseAuth.getInstance().getCurrentUser().getUid());
+                jsonObject.put("reciever", OppositeUid);
+                jsonObject.put("time", System.currentTimeMillis());
+                jsonObject.put("type", "text");
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+
+            SenderBox sender = new SenderBox(socketMessage,oppositeUser.getTOKEN());
+            apiService.sendNotification(sender).enqueue(new Callback<MyResponse>() {
+                @Override
+                public void onResponse(Call<MyResponse> call, Response<MyResponse> response) {
+                    if(response.code()==200)
+                    {
+                        if(response.body().success!=1)
+                        {
+                            Toast.makeText(MessageActivity.this,"Failed",Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<MyResponse> call, Throwable t) {
+
+                }
+            });
+
+
+            SocketHandler.getSocket().emit("chat message", jsonObject);
+        }
+        else
+        {
+            /*SenderBox sender = new SenderBox(socketMessage,oppositeUser.getTOKEN());
+            apiService.sendNotification(sender).enqueue(new Callback<MyResponse>() {
+                @Override
+                public void onResponse(Call<MyResponse> call, Response<MyResponse> response) {
+                    if(response.code()==200)
+                    {
+                        if(response.body().success!=1)
+                        {
+                            Toast.makeText(MessageActivity.this,"Failed",Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<MyResponse> call, Throwable t) {
+
+                }
+            });*/
         }
 
-        SocketHandler.getSocket().emit("chat message", jsonObject);
+
         onTypeButtonEnable();
 
     }
@@ -204,4 +297,40 @@ public class MessageActivity extends AppCompatActivity {
             emoji.setImageDrawable(getResources().getDrawable((R.drawable.smily)));
         }
     }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        FirebaseDatabase.getInstance().getReference("/Status/"+FirebaseAuth.getInstance().getCurrentUser().getUid()).child("Status").setValue("Offline");
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        FirebaseDatabase.getInstance().getReference("/Status/"+FirebaseAuth.getInstance().getCurrentUser().getUid()).child("Status").setValue("Online");
+    }
+
+
+    private void Check(String id)
+    {
+            FirebaseDatabase.getInstance().getReference("Status").child(id).child("Status").addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    if(dataSnapshot.getValue(String.class).equals("Online"))
+                    {
+                        isOnline=true;
+                    }
+                    else
+                    {
+                        isOnline=false;
+                    }
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                }
+            });
+    }
+
 }

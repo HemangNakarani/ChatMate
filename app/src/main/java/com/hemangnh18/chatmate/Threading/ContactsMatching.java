@@ -73,10 +73,15 @@ public class ContactsMatching extends ViewModel {
                     phoneNumber = phoneNumber.replaceAll("[()\\s-]+", "");
                     if(phoneNumber.length()==10)
                     {
-                            phoneNumber="+91"+phoneNumber;
+                        phoneNumber="+91"+phoneNumber;
+
                     }
-                    arr.add(new ContactDb(name,phoneNumber));
-                    namePhoneMap.put(phoneNumber,name);
+
+                    if(phoneNumber.length()==13)
+                    {
+                        arr.add(new ContactDb(name, phoneNumber));
+                        namePhoneMap.put(phoneNumber, name);
+                    }
                 }
 
                 final DatabaseHandler handler = new DatabaseHandler(context);
@@ -87,6 +92,7 @@ public class ContactsMatching extends ViewModel {
                     reference.addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                            //Log.e("EXXX",entry.getKey());
                             if (dataSnapshot.hasChild(entry.getKey())) {
                                 final DatabaseReference reference1 = FirebaseDatabase.getInstance().getReference("Users").child(entry.getKey());
                                 reference1.addListenerForSingleValueEvent(new ValueEventListener() {

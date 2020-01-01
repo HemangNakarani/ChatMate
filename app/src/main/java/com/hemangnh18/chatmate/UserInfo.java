@@ -151,6 +151,7 @@ public class UserInfo extends AppCompatActivity {
                 hashMap.put("GENDER",user1.getGENDER());
                 hashMap.put("DOWNLOAD",user1.getDOWNLOAD());
                 hashMap.put("BASE64",user1.getBASE64());
+                hashMap.put("TOKEN",user1.getTOKEN());
 
                 reference.setValue(hashMap).addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override

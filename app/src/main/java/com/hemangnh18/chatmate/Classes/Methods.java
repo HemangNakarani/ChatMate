@@ -2,14 +2,28 @@ package com.hemangnh18.chatmate.Classes;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.provider.ContactsContract;
+import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 
+import androidx.annotation.NonNull;
+
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.iid.InstanceIdResult;
 import com.vanniktech.emoji.EmojiEditText;
 
 import java.util.Comparator;
@@ -17,8 +31,8 @@ import java.util.Comparator;
 
 public class Methods {
 
-
     //TODO GIVEN TIME IS CURRENTTIME IN MILLS, CHANGE IN APPROPRIATE FORM TODAY,YESTERDAY,OR DATE all with time;
+
 
     public static String getContactName(final String phoneNumber, Context context)
     {
@@ -78,4 +92,28 @@ public class Methods {
             return u1.getUSERNAME_IN_PHONE().compareTo(u2.getUSERNAME_IN_PHONE());
         }
     };
+
+
+   public static void getToken()
+    {
+
+        if(FirebaseAuth.getInstance().getCurrentUser()!=null)
+        {
+            FirebaseInstanceId.getInstance().getInstanceId()
+                    .addOnCompleteListener(new OnCompleteListener<InstanceIdResult>() {
+                        @Override
+                        public void onComplete(@NonNull Task<InstanceIdResult> task) {
+                            if (!task.isSuccessful()) {
+                                Log.w("FAILED TOKEN", "getInstanceId failed", task.getException());
+                                return;
+                            }
+
+                            String token = task.getResult().getToken();
+                            Log.e("TOKEN",token);
+                            FirebaseDatabase.getInstance().getReference("Users").child(FirebaseAuth.getInstance().getCurrentUser().getPhoneNumber()).child("TOKEN").setValue(token);
+                        }
+                    });
+        }
+    }
+
 }
