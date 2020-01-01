@@ -17,6 +17,7 @@ import com.hemangnh18.chatmate.Classes.User;
 import com.hemangnh18.chatmate.Compressing.Converter;
 import com.hemangnh18.chatmate.Database.DatabaseHandler;
 import com.hemangnh18.chatmate.R;
+import com.vanniktech.emoji.EmojiTextView;
 
 import java.util.List;
 
@@ -87,7 +88,8 @@ public class MessageListAdapter extends RecyclerView.Adapter {
     }
 
     private class SentMessageHolder extends RecyclerView.ViewHolder {
-        TextView messageText, timeText;
+        TextView timeText;
+        EmojiTextView messageText;
 
         SentMessageHolder(View itemView) {
             super(itemView);
@@ -102,7 +104,8 @@ public class MessageListAdapter extends RecyclerView.Adapter {
     }
 
     private class ReceivedMessageHolder extends RecyclerView.ViewHolder {
-        TextView messageText, timeText, nameText;
+        TextView timeText, nameText;
+        EmojiTextView messageText;
         CircleImageView profileImage;
 
         ReceivedMessageHolder(View itemView) {
