@@ -4,7 +4,9 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.PagerSnapHelper;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.SnapHelper;
 
 import android.graphics.Color;
 import android.os.Build;
@@ -70,6 +72,7 @@ public class MessageActivity extends AppCompatActivity {
     private ImageView emoji;
     private Toolbar toolbar;
     private Boolean isOnline=false;
+    private ImageButton mScrollDown;
 
 
     @Override
@@ -120,7 +123,16 @@ public class MessageActivity extends AppCompatActivity {
         chatbox = findViewById(R.id.layout_chatbox);
         emoji = findViewById(R.id.emoji_btn);
         toolbar = findViewById(R.id.toolbar);
+        mScrollDown = findViewById(R.id.scrollDown);
+        mScrollDown.setVisibility(View.INVISIBLE);
 
+        mScrollDown.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mMessageRecycler.scrollToPosition(messageList.size()-1);
+                mScrollDown.setVisibility(View.INVISIBLE);
+            }
+        });
 
 
         emojiPopup = EmojiPopup.Builder.fromRootView(chatbox).setBackgroundColor(Color.parseColor("#F2DBF7")).setKeyboardAnimationStyle(R.style.emoji_fade_animation_style).setOnSoftKeyboardCloseListener(new OnSoftKeyboardCloseListener() {
@@ -148,17 +160,24 @@ public class MessageActivity extends AppCompatActivity {
             }
         });
 
-
         messageList = new ArrayList<>();
         mMessageRecycler = findViewById(R.id.reyclerview_message_list);
         mMessageAdapter = new MessageListAdapter(this, messageList,OppositeUid);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
-        //linearLayoutManager.setReverseLayout(true);
-        linearLayoutManager.setStackFromEnd(true);
         mMessageRecycler.setLayoutManager(linearLayoutManager);
         mMessageRecycler.setAdapter(mMessageAdapter);
-    }
 
+        mMessageRecycler.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+
+                if (!recyclerView.canScrollVertically(1)) {
+                    mScrollDown.setVisibility(View.INVISIBLE);
+                }
+            }
+        });
+    }
 
     public void sendMessage(View view){
 
@@ -279,6 +298,17 @@ public class MessageActivity extends AppCompatActivity {
     {
         messageList.add(message);
         mMessageAdapter.notifyDataSetChanged();
+        if(message.getSender().equals(FirebaseAuth.getInstance().getCurrentUser().getUid())){
+            mMessageRecycler.scrollToPosition(messageList.size()-1);
+        }else {
+            LinearLayoutManager layoutManager = ((LinearLayoutManager) mMessageRecycler.getLayoutManager());
+            if(layoutManager.findLastCompletelyVisibleItemPosition()!=messageList.size()-2){
+                Toast.makeText(getApplicationContext(),"New Message Arrived",Toast.LENGTH_LONG).show();
+                mScrollDown.setVisibility(View.VISIBLE);
+            }else {
+                mMessageRecycler.scrollToPosition(messageList.size()-1);
+            }
+        }
     }
 
 
