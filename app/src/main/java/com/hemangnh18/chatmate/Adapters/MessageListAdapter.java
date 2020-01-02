@@ -104,8 +104,7 @@ public class MessageListAdapter extends RecyclerView.Adapter {
     }
 
     private class ReceivedMessageHolder extends RecyclerView.ViewHolder {
-        TextView timeText, nameText;
-        EmojiTextView messageText;
+        TextView timeText, nameText;EmojiTextView messageText;
         CircleImageView profileImage;
 
         ReceivedMessageHolder(View itemView) {

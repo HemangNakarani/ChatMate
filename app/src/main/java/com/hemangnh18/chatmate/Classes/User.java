@@ -196,3 +196,201 @@ public class User implements Parcelable {
         parcel.writeString(TOKEN);
     }
 }
+/*
+ private Toolbar mToolbar;
+    private TextView mStatus;
+    private TextView mPhonenumber;
+    private SwitchCompat mSwitchCompact;
+    private LinearLayout mClearChat;
+    private LinearLayout mBlock;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_info);
+
+        mToolbar = findViewById(R.id.profile_toolbar);
+        mStatus = findViewById(R.id.profile_status);
+        mPhonenumber = findViewById(R.id.profile_phonenumber);
+        mSwitchCompact = findViewById(R.id.profile_notification);
+        mClearChat = findViewById(R.id.profile_clearchat);
+        mBlock = findViewById(R.id.profile_block);
+
+
+        // mToolbar.setTitle();
+
+
+
+        // mStatus.setText();
+
+        mToolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                finish();
+            }
+        });
+ */
+/*
+<androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        android:background="#40000000">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginTop="8dp">
+
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="#fff">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="8dp">
+                    <TextView
+                        android:id="@+id/profile_status"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Hey There! I'm UsingChatMate."
+                        android:textColor="@android:color/black"
+                        android:textSize="16sp"
+                        android:padding="4dp"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Status"
+                        android:textSize="12sp"
+                        android:layout_marginStart="12dp"/>
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginTop="4dp"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginEnd="8dp"
+                        android:background="#80000000"/>
+                    <TextView
+                        android:id="@+id/profile_phonenumber"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="+91 00000 00000"
+                        android:textColor="@android:color/black"
+                        android:textSize="16sp"
+                        android:padding="4dp"
+                        android:layout_marginTop="4dp"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Mobile"
+                        android:textSize="12sp"
+                        android:layout_marginStart="12dp"/>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="#fff"
+                android:layout_marginTop="8dp">
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="8dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Mute Notification"
+                        android:textColor="@android:color/black"
+                        android:textSize="16sp"
+                        android:padding="4dp"
+                        android:layout_alignParentStart="true"/>
+                    <androidx.appcompat.widget.SwitchCompat
+                        android:id="@+id/profile_notification"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentEnd="true"
+                        android:layout_marginEnd="16dp"/>
+                </RelativeLayout>
+            </androidx.cardview.widget.CardView>
+
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="#fff"
+                android:layout_marginTop="8dp">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="8dp">
+
+                    <LinearLayout
+                        android:id="@+id/profile_clearchat"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+                        <ImageView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:src="@drawable/ic_delete_black_24dp"
+                            android:padding="4dp"/>
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="|"
+                            android:textColor="@android:color/black"
+                            android:textSize="16sp"
+                            android:padding="4dp"/>
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Clear Chat"
+                            android:textColor="@android:color/black"
+                            android:textSize="16sp"
+                            android:padding="4dp"/>
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginTop="4dp"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginEnd="8dp"
+                        android:background="#80000000"/>
+
+                    <LinearLayout
+                        android:id="@+id/profile_block"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp">
+                        <ImageView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:src="@drawable/ic_block_black_24dp"
+                            android:padding="4dp"/>
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="|"
+                            android:textColor="#ff0000"
+                            android:textSize="16sp"
+                            android:padding="4dp"/>
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Block"
+                            android:textColor="#ff0000"
+                            android:textSize="16sp"
+                            android:padding="4dp"/>
+                    </LinearLayout>
+
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+
+        </LinearLayout>
+
+    </androidx.core.widget.NestedScrollView>
+ */
