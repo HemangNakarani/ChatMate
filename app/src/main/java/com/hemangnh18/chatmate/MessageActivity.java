@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.PagerSnapHelper;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.SnapHelper;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
@@ -24,6 +25,7 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -36,6 +38,7 @@ import com.hemangnh18.chatmate.Adapters.MessageListAdapter;
 import com.hemangnh18.chatmate.Classes.Methods;
 import com.hemangnh18.chatmate.Classes.SocketMessage;
 import com.hemangnh18.chatmate.Classes.User;
+import com.hemangnh18.chatmate.Compressing.Converter;
 import com.hemangnh18.chatmate.Database.ChatMessagesHandler;
 import com.hemangnh18.chatmate.Database.DatabaseHandler;
 import com.hemangnh18.chatmate.FCM.APIService;
@@ -62,6 +65,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import de.hdodenhof.circleimageview.CircleImageView;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -85,6 +89,11 @@ public class MessageActivity extends AppCompatActivity {
     private ChatMessagesHandler chatMessagesHandler;
     private FetchMessages fetchMessages;
 
+    private ImageButton mBackToolbar;
+    private TextView mUsernameToolbar;
+    private CircleImageView mDPToolbar;
+    private TextView mStatusToolbar;
+
 
     @Override
     protected void onStart() {
@@ -99,8 +108,15 @@ public class MessageActivity extends AppCompatActivity {
         EmojiManager.install(new IosEmojiProvider());
         setContentView(R.layout.activity_message);
 
+        mBackToolbar = findViewById(R.id.backBtn);
+        mUsernameToolbar = findViewById(R.id.name);
+        mDPToolbar = findViewById(R.id.dp_view_toolbar);
+        mStatusToolbar = findViewById(R.id.status_toolbar);
 
-        DatabaseReference infoConnected = FirebaseDatabase.getInstance().getReference(".info/connected");
+        // TODO
+        //Typing or Online Status
+
+        final DatabaseReference infoConnected = FirebaseDatabase.getInstance().getReference(".info/connected");
         final DatabaseReference UpdateRef = FirebaseDatabase.getInstance().getReference("/Status/"+FirebaseAuth.getInstance().getCurrentUser().getUid());
         infoConnected.addValueEventListener(new ValueEventListener() {
             @Override
@@ -111,16 +127,11 @@ public class MessageActivity extends AppCompatActivity {
                 {
                     DatabaseReference reference = UpdateRef.child("Status");
                     reference.setValue("Online");
-
                     reference.onDisconnect().setValue("Offline");
-
                 }
             }
-
             @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
+            public void onCancelled(@NonNull DatabaseError databaseError) {}
         });
 
         apiService = Client.getClient("https://fcm.googleapis.com/").create(APIService.class);
@@ -138,6 +149,22 @@ public class MessageActivity extends AppCompatActivity {
         toolbar = findViewById(R.id.toolbar);
         mScrollDown = findViewById(R.id.scrollDown);
         mScrollDown.setVisibility(View.INVISIBLE);
+        toolbar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(MessageActivity.this,info.class);
+                intent.putExtra("USER",oppositeUser);
+                startActivity(intent);
+            }
+        });
+        mBackToolbar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                finish();
+            }
+        });
+        mUsernameToolbar.setText(oppositeUser.getUSERNAME_IN_PHONE());
+        mDPToolbar.setImageBitmap(Converter.Base642Bitmap(oppositeUser.getBASE64()));
 
         FetchMessagesFactory factory = new FetchMessagesFactory(this,OppositeUid);
         fetchMessages = ViewModelProviders.of(this, factory).get(FetchMessages.class);

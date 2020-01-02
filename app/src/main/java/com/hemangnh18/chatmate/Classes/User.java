@@ -15,6 +15,18 @@ public class User implements Parcelable {
     private String  BASE64;
     private String TOKEN;
 
+    public static final Creator<User> CREATOR = new Creator<User>() {
+        @Override
+        public User createFromParcel(Parcel in) {
+            return new User(in);
+        }
+
+        @Override
+        public User[] newArray(int size) {
+            return new User[size];
+        }
+    };
+
     public String getBASE64() {
         return BASE64;
     }
@@ -75,36 +87,7 @@ public class User implements Parcelable {
         USERNAME_IN_PHONE =in.readString();
     }
 
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(USERNAME);
-        dest.writeString(PHONE);
-        dest.writeString(STATUS);
-        dest.writeString(USER_ID);
-        dest.writeString(GENDER);
-        dest.writeString(DP);
-        dest.writeString(DOWNLOAD);
-        dest.writeString(BASE64);
-        dest.writeString(TOKEN);
-        dest.writeString(USERNAME_IN_PHONE);
-    }
 
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    public static final Creator<User> CREATOR = new Creator<User>() {
-        @Override
-        public User createFromParcel(Parcel in) {
-            return new User(in);
-        }
-
-        @Override
-        public User[] newArray(int size) {
-            return new User[size];
-        }
-    };
 
     public String getUSERNAME() {
         return USERNAME;
@@ -192,5 +175,24 @@ public class User implements Parcelable {
                 ", TOKEN='" + TOKEN + '\'' +
                 ", DP='" + DP + '\'' +
                 '}';
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeString(USERNAME);
+        parcel.writeString(USERNAME_IN_PHONE);
+        parcel.writeString(PHONE);
+        parcel.writeString(STATUS);
+        parcel.writeString(USER_ID);
+        parcel.writeString(GENDER);
+        parcel.writeString(DP);
+        parcel.writeString(DOWNLOAD);
+        parcel.writeString(BASE64);
+        parcel.writeString(TOKEN);
     }
 }
