@@ -141,9 +141,11 @@ public class MessageActivity extends AppCompatActivity {
         textField= findViewById(R.id.edittext_chatbox);
         sendButton = findViewById(R.id.button_chatbox_send);
         OppositeUid = getIntent().getStringExtra("Opposite");
+        FirebaseDatabase.getInstance().getReference("MsgStatus").child(OppositeUid).child(FirebaseAuth.getInstance().getCurrentUser().getUid()).setValue("Seen");
+
         Check(OppositeUid);
         oppositeUser = handler.getUser(OppositeUid);
-        textField.setText(OppositeUid);
+
         chatbox = findViewById(R.id.layout_chatbox);
         emoji = findViewById(R.id.emoji_btn);
         toolbar = findViewById(R.id.toolbar);
@@ -226,6 +228,8 @@ public class MessageActivity extends AppCompatActivity {
     }
 
     public void sendMessage(View view){
+
+        FirebaseDatabase.getInstance().getReference("MsgStatus").child(FirebaseAuth.getInstance().getUid()).child(OppositeUid).setValue("Sent");
 
         String message = textField.getText().toString().trim();
 
@@ -336,6 +340,7 @@ public class MessageActivity extends AppCompatActivity {
     public void onMessageEvent(SocketMessage event)
     {
         if(event.getSender().equals(OppositeUid)) {
+            FirebaseDatabase.getInstance().getReference("MsgStatus").child(OppositeUid).child(FirebaseAuth.getInstance().getCurrentUser().getUid()).setValue("Seen");
             appendMessage(event);
         }
     }
