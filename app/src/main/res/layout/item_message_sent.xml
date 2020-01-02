@@ -34,4 +34,16 @@
         app:layout_constraintBottom_toBottomOf="@+id/text_message_body"
         app:layout_constraintRight_toLeftOf="@+id/text_message_body" />
 
+    <TextView
+        android:id="@+id/msgstatus"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Seen"
+        android:textColor="@color/colorAccent"
+        android:textStyle="bold"
+        android:layout_marginRight="4dp"
+        app:layout_constraintEnd_toEndOf="@+id/text_message_body"
+        app:layout_constraintTop_toBottomOf="@+id/text_message_body">
+    </TextView>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

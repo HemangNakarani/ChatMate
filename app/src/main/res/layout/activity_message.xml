@@ -68,7 +68,6 @@
             android:layout_gravity="center_vertical"
             android:textCursorDrawable="@color/colorPrimary"
             android:scrollbars="vertical"
-            android:text="Helo heemmnaang"
             android:fadeScrollbars="false"
             android:inputType="textMultiLine|textCapSentences"
             android:maxLines="6"

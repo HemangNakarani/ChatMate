@@ -51,7 +51,7 @@ public class FirebaseMessageService extends FirebaseMessagingService {
 
         ChatMessagesHandler chatMessagesHandler = new ChatMessagesHandler(this);
         chatMessagesHandler.addMessage(socketMessage);
-
+        FirebaseDatabase.getInstance().getReference("MsgStatus").child(socketMessage.getSender()).child(FirebaseAuth.getInstance().getCurrentUser().getUid()).setValue("Delivered");
 
         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
         Notification notification = new NotificationCompat.Builder(this, CHANNEL_ID)

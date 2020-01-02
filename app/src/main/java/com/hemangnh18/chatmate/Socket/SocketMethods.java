@@ -10,6 +10,7 @@ import android.util.Log;
 import com.github.nkzawa.emitter.Emitter;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.FirebaseDatabase;
 import com.hemangnh18.chatmate.Classes.SocketMessage;
 import com.hemangnh18.chatmate.Database.ChatMessagesHandler;
 import com.hemangnh18.chatmate.MessageActivity;
@@ -77,6 +78,8 @@ public class SocketMethods
                         pojo.setTime(data.getString("time"));
                         pojo.setType(data.getString("type"));
                         pojo.setRoom(data.getString("sender"));
+
+                        FirebaseDatabase.getInstance().getReference("MsgStatus").child(pojo.getSender()).child(FirebaseAuth.getInstance().getCurrentUser().getUid()).setValue("Delivered");
 
                         ChatMessagesHandler chatMessagesHandler = new ChatMessagesHandler(context);
                         chatMessagesHandler.addMessage(pojo);
