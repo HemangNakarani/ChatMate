@@ -1,8 +1,11 @@
 package com.hemangnh18.chatmate;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.PagerSnapHelper;
 import androidx.recyclerview.widget.RecyclerView;
@@ -33,12 +36,17 @@ import com.hemangnh18.chatmate.Adapters.MessageListAdapter;
 import com.hemangnh18.chatmate.Classes.Methods;
 import com.hemangnh18.chatmate.Classes.SocketMessage;
 import com.hemangnh18.chatmate.Classes.User;
+import com.hemangnh18.chatmate.Database.ChatMessagesHandler;
 import com.hemangnh18.chatmate.Database.DatabaseHandler;
 import com.hemangnh18.chatmate.FCM.APIService;
 import com.hemangnh18.chatmate.FCM.Client;
 import com.hemangnh18.chatmate.FCM.MyResponse;
 import com.hemangnh18.chatmate.FCM.SenderBox;
 import com.hemangnh18.chatmate.Socket.SocketHandler;
+import com.hemangnh18.chatmate.Threading.ContactsMatching;
+import com.hemangnh18.chatmate.Threading.ContactsMatchingFactory;
+import com.hemangnh18.chatmate.Threading.FetchMessages;
+import com.hemangnh18.chatmate.Threading.FetchMessagesFactory;
 import com.vanniktech.emoji.EmojiEditText;
 import com.vanniktech.emoji.EmojiManager;
 import com.vanniktech.emoji.EmojiPopup;
@@ -51,6 +59,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import retrofit2.Call;
@@ -73,6 +82,8 @@ public class MessageActivity extends AppCompatActivity {
     private Toolbar toolbar;
     private Boolean isOnline=false;
     private Button mScrollDown;
+    private ChatMessagesHandler chatMessagesHandler;
+    private FetchMessages fetchMessages;
 
 
     @Override
@@ -114,6 +125,8 @@ public class MessageActivity extends AppCompatActivity {
 
         apiService = Client.getClient("https://fcm.googleapis.com/").create(APIService.class);
         DatabaseHandler handler = new DatabaseHandler(MessageActivity.this);
+        chatMessagesHandler = new ChatMessagesHandler(MessageActivity.this);
+
         textField= findViewById(R.id.edittext_chatbox);
         sendButton = findViewById(R.id.button_chatbox_send);
         OppositeUid = getIntent().getStringExtra("Opposite");
@@ -126,13 +139,10 @@ public class MessageActivity extends AppCompatActivity {
         mScrollDown = findViewById(R.id.scrollDown);
         mScrollDown.setVisibility(View.INVISIBLE);
 
-        mScrollDown.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mMessageRecycler.smoothScrollToPosition(messageList.size()-1);
-                mScrollDown.setVisibility(View.INVISIBLE);
-            }
-        });
+        FetchMessagesFactory factory = new FetchMessagesFactory(this,OppositeUid);
+        fetchMessages = ViewModelProviders.of(this, factory).get(FetchMessages.class);
+        getMessages();
+
 
         emojiPopup = EmojiPopup.Builder.fromRootView(chatbox).setBackgroundColor(Color.parseColor("#F2DBF7")).setKeyboardAnimationStyle(R.style.emoji_fade_animation_style).setOnSoftKeyboardCloseListener(new OnSoftKeyboardCloseListener() {
             @Override
@@ -160,6 +170,7 @@ public class MessageActivity extends AppCompatActivity {
         });
 
         messageList = new ArrayList<>();
+        //messageList = chatMessagesHandler.getAllMessages(OppositeUid);
         mMessageRecycler = findViewById(R.id.reyclerview_message_list);
         mMessageAdapter = new MessageListAdapter(this, messageList,OppositeUid);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
@@ -176,6 +187,15 @@ public class MessageActivity extends AppCompatActivity {
                 }
             }
         });
+
+        mScrollDown.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mMessageRecycler.smoothScrollToPosition(messageList.size()-1);
+                mMessageRecycler.scrollTo(messageList.size()-1, 0);
+                mScrollDown.setVisibility(View.INVISIBLE);
+            }
+        });
     }
 
     public void sendMessage(View view){
@@ -187,6 +207,7 @@ public class MessageActivity extends AppCompatActivity {
         }
         textField.setText("");
         SocketMessage socketMessage = new SocketMessage(message, FirebaseAuth.getInstance().getCurrentUser().getUid(), OppositeUid, String.valueOf(System.currentTimeMillis()), OppositeUid, "text");
+        chatMessagesHandler.addMessage(socketMessage);
         appendMessage(socketMessage);
 
         if(isOnline) {
@@ -202,6 +223,25 @@ public class MessageActivity extends AppCompatActivity {
             } catch (JSONException e) {
                 e.printStackTrace();
             }
+
+            /*SenderBox sender = new SenderBox(socketMessage,oppositeUser.getTOKEN());
+            apiService.sendNotification(sender).enqueue(new Callback<MyResponse>() {
+                @Override
+                public void onResponse(Call<MyResponse> call, Response<MyResponse> response) {
+                    if(response.code()==200)
+                    {
+                        if(response.body().success!=1)
+                        {
+                            Toast.makeText(MessageActivity.this,"Failed",Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<MyResponse> call, Throwable t) {
+
+                }
+            });*/
 
             SocketHandler.getSocket().emit("chat message", jsonObject);
         }
@@ -231,7 +271,6 @@ public class MessageActivity extends AppCompatActivity {
         onTypeButtonEnable();
 
     }
-
 
 
     public void onTypeButtonEnable(){
@@ -269,7 +308,9 @@ public class MessageActivity extends AppCompatActivity {
     @Subscribe
     public void onMessageEvent(SocketMessage event)
     {
-       appendMessage(event);
+        if(event.getSender().equals(OppositeUid)) {
+            appendMessage(event);
+        }
     }
 
     private void appendMessage(SocketMessage message)
@@ -281,7 +322,7 @@ public class MessageActivity extends AppCompatActivity {
         }else {
             LinearLayoutManager layoutManager = ((LinearLayoutManager) mMessageRecycler.getLayoutManager());
             if(layoutManager.findLastCompletelyVisibleItemPosition()!=messageList.size()-2){
-                Toast.makeText(getApplicationContext(),"New Message Arrived",Toast.LENGTH_LONG).show();
+                //Toast.makeText(getApplicationContext(),"New Message Arrived",Toast.LENGTH_LONG).show();
                 mScrollDown.setVisibility(View.VISIBLE);
             }else {
                 mMessageRecycler.scrollToPosition(messageList.size()-1);
@@ -340,5 +381,22 @@ public class MessageActivity extends AppCompatActivity {
                 }
             });
     }
+
+    private void getMessages() {
+        final Observer<ArrayList<SocketMessage>> elapsedTimeObserver = new Observer<ArrayList<SocketMessage>>() {
+            @Override
+            public void onChanged(@Nullable final ArrayList<SocketMessage> aLong) {
+                messageList.clear();
+                messageList.addAll(aLong);
+                mMessageAdapter.notifyDataSetChanged();
+                if(messageList.size()>0) {
+                    mMessageRecycler.scrollToPosition(messageList.size() - 1);
+                }
+            }
+        };
+
+        fetchMessages.getElapsedTime().observe(this, elapsedTimeObserver);
+    }
+
 
 }

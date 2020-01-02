@@ -8,6 +8,25 @@ public class SocketMessage {
     private String Time;
     private String Room;
     private String Type;
+    private int Read=0;
+
+    public int getRead() {
+        return Read;
+    }
+
+    public void setRead(int read) {
+        Read = read;
+    }
+
+    public SocketMessage(String message, String sender, String reciever, String time, String room, String type, int read) {
+        Message = message;
+        Sender = sender;
+        Reciever = reciever;
+        Time = time;
+        Room = room;
+        Type = type;
+        Read = read;
+    }
 
     public SocketMessage() {}
 

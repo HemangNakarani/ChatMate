@@ -11,6 +11,8 @@ import com.github.nkzawa.emitter.Emitter;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.hemangnh18.chatmate.Classes.SocketMessage;
+import com.hemangnh18.chatmate.Database.ChatMessagesHandler;
+import com.hemangnh18.chatmate.MessageActivity;
 
 import org.greenrobot.eventbus.EventBus;
 import org.json.JSONException;
@@ -26,9 +28,11 @@ public class SocketMethods
     private boolean startTyping = false;
     private int time = 2;
     private final Handler handler;
+    private Context context;
 
     public SocketMethods(Context context) {
 
+        this.context = context;
         handler = new Handler(context.getMainLooper());
     }
 
@@ -73,6 +77,9 @@ public class SocketMethods
                         pojo.setTime(data.getString("time"));
                         pojo.setType(data.getString("type"));
                         pojo.setRoom(data.getString("sender"));
+
+                        ChatMessagesHandler chatMessagesHandler = new ChatMessagesHandler(context);
+                        chatMessagesHandler.addMessage(pojo);
 
                         EventBus.getDefault().post(pojo);
 

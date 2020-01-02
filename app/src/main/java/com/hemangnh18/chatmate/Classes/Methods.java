@@ -28,7 +28,6 @@ import com.vanniktech.emoji.EmojiEditText;
 
 import java.util.Comparator;
 
-
 public class Methods {
 
     //TODO GIVEN TIME IS CURRENTTIME IN MILLS, CHANGE IN APPROPRIATE FORM TODAY,YESTERDAY,OR DATE all with time;
