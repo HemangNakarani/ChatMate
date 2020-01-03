@@ -6,11 +6,16 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.hemangnh18.chatmate.Classes.Methods;
 import com.hemangnh18.chatmate.Classes.SocketMessage;
 import com.hemangnh18.chatmate.Classes.User;
@@ -29,12 +34,14 @@ public class MessageListAdapter extends RecyclerView.Adapter {
 
     private Context mContext;
     private User oppositeUser;
-
+    private String oppositeUid;
     private List<SocketMessage> mMessageList;
+
 
     public MessageListAdapter(Context context, List<SocketMessage> messageList, String oppositeUid) {
         mContext = context;
         mMessageList = messageList;
+        this.oppositeUid = oppositeUid;
         DatabaseHandler databaseHandler = new DatabaseHandler(context);
         this.oppositeUser = databaseHandler.getUser(oppositeUid);
     }
@@ -80,7 +87,7 @@ public class MessageListAdapter extends RecyclerView.Adapter {
 
         switch (holder.getItemViewType()) {
             case VIEW_TYPE_MESSAGE_SENT:
-                ((SentMessageHolder) holder).bind(message);
+                ((SentMessageHolder) holder).bind(message,position);
                 break;
             case VIEW_TYPE_MESSAGE_RECEIVED:
                 ((ReceivedMessageHolder) holder).bind(message,position);
@@ -88,18 +95,29 @@ public class MessageListAdapter extends RecyclerView.Adapter {
     }
 
     private class SentMessageHolder extends RecyclerView.ViewHolder {
-        TextView timeText;
+        TextView timeText,msgStatus;
         EmojiTextView messageText;
 
         SentMessageHolder(View itemView) {
             super(itemView);
             messageText = itemView.findViewById(R.id.text_message_body);
             timeText = itemView.findViewById(R.id.text_message_time);
+            msgStatus = itemView.findViewById(R.id.msgstatus);
         }
 
-        void bind(SocketMessage message) {
+        void bind(SocketMessage message,int pos) {
             messageText.setText(message.getMessage());
             timeText.setText(message.getTime());
+            if(pos==mMessageList.size()-1)
+            {
+                msgStatus.setVisibility(View.VISIBLE);
+            }
+            else
+            {
+                msgStatus.setVisibility(View.GONE);
+            }
+            UpdateMsgStatus(msgStatus);
+
         }
     }
 
@@ -135,5 +153,22 @@ public class MessageListAdapter extends RecyclerView.Adapter {
                 }
             }
         }
+    }
+
+    private void UpdateMsgStatus(final TextView view)
+    {
+        FirebaseDatabase.getInstance().getReference("MsgStatus").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child(oppositeUid).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                String status = dataSnapshot.getValue(String.class);
+                view.setText(status);
+            }
+
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
     }
 }

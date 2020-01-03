@@ -7,34 +7,21 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AnimationUtils;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.github.tntkhang.fullscreenimageview.library.FullScreenImageViewActivity;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
-import com.google.gson.Gson;
-import com.hemangnh18.chatmate.Classes.Methods;
-import com.hemangnh18.chatmate.Classes.Room;
 import com.hemangnh18.chatmate.Classes.User;
 import com.hemangnh18.chatmate.Compressing.Converter;
-import com.hemangnh18.chatmate.Database.DatabaseHandler;
+import com.hemangnh18.chatmate.Database.MidChatHelper;
 import com.hemangnh18.chatmate.ImageViewer.FullScreenImageViewActivity2;
-import com.hemangnh18.chatmate.MainActivity;
 import com.hemangnh18.chatmate.MessageActivity;
 import com.hemangnh18.chatmate.R;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 

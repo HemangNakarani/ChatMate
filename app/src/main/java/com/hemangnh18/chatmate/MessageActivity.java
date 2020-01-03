@@ -41,6 +41,7 @@ import com.hemangnh18.chatmate.Classes.User;
 import com.hemangnh18.chatmate.Compressing.Converter;
 import com.hemangnh18.chatmate.Database.ChatMessagesHandler;
 import com.hemangnh18.chatmate.Database.DatabaseHandler;
+import com.hemangnh18.chatmate.Database.MidChatHelper;
 import com.hemangnh18.chatmate.FCM.APIService;
 import com.hemangnh18.chatmate.FCM.Client;
 import com.hemangnh18.chatmate.FCM.MyResponse;
@@ -87,6 +88,7 @@ public class MessageActivity extends AppCompatActivity {
     private Boolean isOnline=false;
     private Button mScrollDown;
     private ChatMessagesHandler chatMessagesHandler;
+    private MidChatHelper midChatHelper;
     private FetchMessages fetchMessages;
 
     private ImageButton mBackToolbar;
@@ -137,12 +139,12 @@ public class MessageActivity extends AppCompatActivity {
         apiService = Client.getClient("https://fcm.googleapis.com/").create(APIService.class);
         DatabaseHandler handler = new DatabaseHandler(MessageActivity.this);
         chatMessagesHandler = new ChatMessagesHandler(MessageActivity.this);
+        midChatHelper = new MidChatHelper(MessageActivity.this);
 
         textField= findViewById(R.id.edittext_chatbox);
         sendButton = findViewById(R.id.button_chatbox_send);
         OppositeUid = getIntent().getStringExtra("Opposite");
         FirebaseDatabase.getInstance().getReference("MsgStatus").child(OppositeUid).child(FirebaseAuth.getInstance().getCurrentUser().getUid()).setValue("Seen");
-
         Check(OppositeUid);
         oppositeUser = handler.getUser(OppositeUid);
 
@@ -229,14 +231,21 @@ public class MessageActivity extends AppCompatActivity {
 
     public void sendMessage(View view){
 
-        FirebaseDatabase.getInstance().getReference("MsgStatus").child(FirebaseAuth.getInstance().getUid()).child(OppositeUid).setValue("Sent");
+
 
         String message = textField.getText().toString().trim();
 
         if (TextUtils.isEmpty(message)) {
             return;
         }
+
+        if(messageList.size()==0)
+        {
+            midChatHelper.Exists(OppositeUid);
+        }
+
         textField.setText("");
+        FirebaseDatabase.getInstance().getReference("MsgStatus").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child(OppositeUid).setValue("Sent");
         SocketMessage socketMessage = new SocketMessage(message, FirebaseAuth.getInstance().getCurrentUser().getUid(), OppositeUid, String.valueOf(System.currentTimeMillis()), OppositeUid, "text");
         chatMessagesHandler.addMessage(socketMessage);
         appendMessage(socketMessage);
@@ -336,6 +345,7 @@ public class MessageActivity extends AppCompatActivity {
             }
         });
     }
+
     @Subscribe
     public void onMessageEvent(SocketMessage event)
     {
@@ -423,7 +433,9 @@ public class MessageActivity extends AppCompatActivity {
                 mMessageAdapter.notifyDataSetChanged();
                 if(messageList.size()>0) {
                     mMessageRecycler.scrollToPosition(messageList.size() - 1);
+                    midChatHelper.Exists(OppositeUid);
                 }
+
             }
         };
 
