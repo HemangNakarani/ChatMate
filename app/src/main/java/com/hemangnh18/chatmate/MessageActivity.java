@@ -157,7 +157,7 @@ public class MessageActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(MessageActivity.this,info.class);
-                intent.putExtra("USER",oppositeUser);
+                intent.putExtra("USER",OppositeUid);
                 startActivity(intent);
             }
         });
@@ -234,19 +234,19 @@ public class MessageActivity extends AppCompatActivity {
 
 
         String message = textField.getText().toString().trim();
-
+        String curTime = String.valueOf(System.currentTimeMillis());
         if (TextUtils.isEmpty(message)) {
             return;
         }
 
         if(messageList.size()==0)
         {
-            midChatHelper.Exists(OppositeUid);
+            midChatHelper.Exists(OppositeUid,message,curTime);
         }
 
         textField.setText("");
         FirebaseDatabase.getInstance().getReference("MsgStatus").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child(OppositeUid).setValue("Sent");
-        SocketMessage socketMessage = new SocketMessage(message, FirebaseAuth.getInstance().getCurrentUser().getUid(), OppositeUid, String.valueOf(System.currentTimeMillis()), OppositeUid, "text");
+        SocketMessage socketMessage = new SocketMessage(message, FirebaseAuth.getInstance().getCurrentUser().getUid(), OppositeUid, curTime, OppositeUid, "text");
         chatMessagesHandler.addMessage(socketMessage);
         appendMessage(socketMessage);
 
@@ -257,7 +257,7 @@ public class MessageActivity extends AppCompatActivity {
                 jsonObject.put("message", message);
                 jsonObject.put("sender", FirebaseAuth.getInstance().getCurrentUser().getUid());
                 jsonObject.put("reciever", OppositeUid);
-                jsonObject.put("time", System.currentTimeMillis());
+                jsonObject.put("time", curTime);
                 jsonObject.put("type", "text");
 
             } catch (JSONException e) {
@@ -358,6 +358,17 @@ public class MessageActivity extends AppCompatActivity {
     private void appendMessage(SocketMessage message)
     {
         messageList.add(message);
+        MidChatHelper midChatHelper = new MidChatHelper(MessageActivity.this);
+
+        if(message.getSender().equals(FirebaseAuth.getInstance().getCurrentUser().getUid()))
+        {
+            midChatHelper.UpdateLast(message.getReciever(),message.getMessage(),message.getTime());
+        }
+        else
+        {
+            midChatHelper.UpdateLast(message.getSender(),message.getMessage(),message.getTime());
+        }
+
         mMessageAdapter.notifyDataSetChanged();
         if(message.getSender().equals(FirebaseAuth.getInstance().getCurrentUser().getUid())){
             mMessageRecycler.scrollToPosition(messageList.size()-1);
@@ -433,7 +444,7 @@ public class MessageActivity extends AppCompatActivity {
                 mMessageAdapter.notifyDataSetChanged();
                 if(messageList.size()>0) {
                     mMessageRecycler.scrollToPosition(messageList.size() - 1);
-                    midChatHelper.Exists(OppositeUid);
+                    midChatHelper.Exists(OppositeUid,messageList.get(messageList.size()-1).getMessage(),messageList.get(messageList.size()-1).getTime());
                 }
 
             }

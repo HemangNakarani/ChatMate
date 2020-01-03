@@ -7,7 +7,9 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
+import com.hemangnh18.chatmate.Classes.DisplayRecent;
 import com.hemangnh18.chatmate.Classes.FirstChatUser;
+import com.hemangnh18.chatmate.Classes.User;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -20,6 +22,8 @@ public class MidChatHelper extends SQLiteOpenHelper {
     private static final String KEY_ID = "id";
     private static final String KEY_USER_ID = "USER_ID";
     private static final String KEY_LAST_MSG = "LAST_MSG";
+    private static final String KEY_TIME = "LAST_TIME";
+    private static final String KEY_READ = "READ";
     private Context context;
 
 
@@ -29,13 +33,14 @@ public class MidChatHelper extends SQLiteOpenHelper {
     }
 
 
-    // Creating Tables
     @Override
     public void onCreate(SQLiteDatabase db) {
         String CREATE_CONTACTS_TABLE = "CREATE TABLE " + TABLE_CONTACTS + "("
                 + KEY_ID + " INTEGER PRIMARY KEY,"
                 + KEY_USER_ID + " TEXT,"
-                + KEY_LAST_MSG + " TEXT" + ")";
+                + KEY_LAST_MSG + " TEXT,"
+                + KEY_TIME + " TEXT,"
+                + KEY_READ + " INTEGER" + ")";
 
 
         db.execSQL(CREATE_CONTACTS_TABLE);
@@ -50,17 +55,20 @@ public class MidChatHelper extends SQLiteOpenHelper {
         onCreate(db);
     }
 
-    public void addUser(String id) {
+    public void addUser(String id,String message,String time) {
         SQLiteDatabase db = this.getWritableDatabase();
 
         ContentValues values = new ContentValues();
         values.put(KEY_USER_ID, id);
+        values.put(KEY_LAST_MSG, message);
+        values.put(KEY_TIME, time);
+        values.put(KEY_READ, 1);
         db.insert(TABLE_CONTACTS, null, values);
         db.close();
     }
 
 
-    public void Exists(String id)
+    public void Exists(String id,String message,String time)
     {
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.query(TABLE_CONTACTS, null, KEY_USER_ID + "=?",
@@ -68,13 +76,22 @@ public class MidChatHelper extends SQLiteOpenHelper {
 
         if(!cursor.moveToFirst())
         {
-            Log.e("ADDDEEEED",id);
-            EventBus.getDefault().post(new FirstChatUser(id));
-            addUser(id);
+            DisplayRecent displayRecent = new DisplayRecent(id,message,time,true);
+            EventBus.getDefault().post(displayRecent);
+            addUser(id,message,time);
         }
     }
 
 
+    public void UpdateLast(String id,String message,String time)
+    {
+        ContentValues args = new ContentValues();
+        SQLiteDatabase db= this.getWritableDatabase();
+        args.put(KEY_LAST_MSG, message);
+        args.put(KEY_READ, time);
+        db.update(TABLE_CONTACTS,args, KEY_USER_ID + " = ?",new String[]{id});
+        db.close();
+    }
 
 
    /* public ArrayList<User> getAllMidChats() {

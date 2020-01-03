@@ -21,6 +21,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.FirebaseDatabase;
 import com.hemangnh18.chatmate.Adapters.ContactUserAdapter;
 import com.hemangnh18.chatmate.Adapters.MessageListAdapter;
+import com.hemangnh18.chatmate.Classes.DisplayRecent;
 import com.hemangnh18.chatmate.Classes.FirstChatUser;
 import com.hemangnh18.chatmate.Classes.Methods;
 import com.hemangnh18.chatmate.Classes.SocketMessage;
@@ -88,26 +89,29 @@ public class HomeFragment extends Fragment {
     }
 
     @Subscribe
-    public void onFirsttChat(FirstChatUser event)
+    public void onFirstChat(DisplayRecent event)
     {
        Event(event);
     }
-    private void Event(FirstChatUser firstChatUser)
+    private void Event(DisplayRecent displayRecent)
     {
-        DatabaseHandler databaseHandler = new DatabaseHandler(getContext());
-        contacts.add(databaseHandler.getUser(firstChatUser.getId()));
-        contactUserAdapter.notifyDataSetChanged();
+        DatabaseHandler databaseHandler = new DatabaseHandler(getActivity());
+        User user = databaseHandler.getUser(displayRecent.getId());
+        displayRecent.setBase64(user.getBASE64());
+        displayRecent.setUsername(user.getUSERNAME_IN_PHONE());
+        /*contacts.add(displayRecent);
+        contactUserAdapter.notifyDataSetChanged();*/
     }
 
     private void subscribe() {
-        final Observer<ArrayList<User>> elapsedTimeObserver = new Observer<ArrayList<User>>() {
+        final Observer<ArrayList<DisplayRecent>> elapsedTimeObserver = new Observer<ArrayList<DisplayRecent>>() {
             @Override
-            public void onChanged(@Nullable final ArrayList<User> aLong) {
+            public void onChanged(@Nullable final ArrayList<DisplayRecent> aLong) {
 
-                contacts.clear();
-                contacts.addAll(aLong);
+              /* *//* contacts.clear();
+                contacts.addAll(aLong);*//*
                 Collections.sort(contacts, Methods.c);
-                contactUserAdapter.notifyDataSetChanged();
+                contactUserAdapter.notifyDataSetChanged();*/
             }
         };
 

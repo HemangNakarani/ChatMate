@@ -8,6 +8,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.hemangnh18.chatmate.Classes.DisplayRecent;
 import com.hemangnh18.chatmate.Classes.SocketMessage;
 import com.hemangnh18.chatmate.Classes.User;
 import com.hemangnh18.chatmate.Database.ChatMessagesHandler;
@@ -20,7 +21,7 @@ import java.util.concurrent.Executors;
 
 public class FetchCurrentChats extends ViewModel {
 
-    private MutableLiveData<ArrayList<User>> messagesList = new MutableLiveData<>();
+    private MutableLiveData<ArrayList<DisplayRecent>> messagesList = new MutableLiveData<>();
     private DatabaseHandler databaseHandler;
     private MidChatHelper midChatHelper;
     private static final String TABLE_CONTACTS = "MidChat";
@@ -34,7 +35,7 @@ public class FetchCurrentChats extends ViewModel {
 
     public void init()
     {
-        final ArrayList<User> userList = new ArrayList<>();
+        final ArrayList<DisplayRecent> userList = new ArrayList<>();
         final SQLiteDatabase db = midChatHelper.getWritableDatabase();
         final String selectQuery = "SELECT  * FROM " + TABLE_CONTACTS;
 
@@ -48,7 +49,11 @@ public class FetchCurrentChats extends ViewModel {
                 if (cursor.moveToFirst()) {
                     do {
 
-                        userList.add(databaseHandler.getUser(cursor.getString(1)));
+                        User user = databaseHandler.getUser(cursor.getString(1));
+                        DisplayRecent displayRecent = new DisplayRecent(cursor.getString(1),cursor.getString(2),cursor.getString(3),cursor.getInt(4)==1);
+                        displayRecent.setBase64(user.getBASE64());
+                        displayRecent.setUsername(user.getUSERNAME_IN_PHONE());
+                        userList.add(displayRecent);
 
                     } while (cursor.moveToNext());
                 }
@@ -62,7 +67,7 @@ public class FetchCurrentChats extends ViewModel {
 
     }
 
-    public LiveData<ArrayList<User>> getElapsedTime() {
+    public LiveData<ArrayList<DisplayRecent>> getElapsedTime() {
         return messagesList;
     }
 
