@@ -19,6 +19,7 @@ import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.FirebaseDatabase;
+import com.hemangnh18.chatmate.Adapters.ChatListAdapter;
 import com.hemangnh18.chatmate.Adapters.ContactUserAdapter;
 import com.hemangnh18.chatmate.Adapters.MessageListAdapter;
 import com.hemangnh18.chatmate.Classes.DisplayRecent;
@@ -44,8 +45,8 @@ import java.util.Collections;
 public class HomeFragment extends Fragment {
 
     private RecyclerView recyclerView;
-    private ContactUserAdapter contactUserAdapter;
-    private ArrayList<User> contacts;
+    private ChatListAdapter contactUserAdapter;
+    private ArrayList<DisplayRecent> contacts;
     private FetchCurrentChats fetchCurrentChats;
 
     public HomeFragment() {
@@ -79,7 +80,7 @@ public class HomeFragment extends Fragment {
         llm.setOrientation(LinearLayoutManager.VERTICAL);
         recyclerView.setLayoutManager(llm);
         contacts =  new ArrayList<>();
-        contactUserAdapter = new ContactUserAdapter(getContext(),contacts);
+        contactUserAdapter = new ChatListAdapter(getContext(),contacts);
         recyclerView.setAdapter(contactUserAdapter);
 
         FetchCurrentChatsFactory factory = new FetchCurrentChatsFactory(getContext());
@@ -99,22 +100,20 @@ public class HomeFragment extends Fragment {
         User user = databaseHandler.getUser(displayRecent.getId());
         displayRecent.setBase64(user.getBASE64());
         displayRecent.setUsername(user.getUSERNAME_IN_PHONE());
-        /*contacts.add(displayRecent);
-        contactUserAdapter.notifyDataSetChanged();*/
+        contacts.add(displayRecent);
+        contactUserAdapter.notifyDataSetChanged();
     }
 
     private void subscribe() {
         final Observer<ArrayList<DisplayRecent>> elapsedTimeObserver = new Observer<ArrayList<DisplayRecent>>() {
             @Override
             public void onChanged(@Nullable final ArrayList<DisplayRecent> aLong) {
-
-              /* *//* contacts.clear();
-                contacts.addAll(aLong);*//*
-                Collections.sort(contacts, Methods.c);
-                contactUserAdapter.notifyDataSetChanged();*/
+                contacts.clear();
+                contacts.addAll(aLong);
+                //Collections.sort(contacts, Methods.c);
+                contactUserAdapter.notifyDataSetChanged();
             }
         };
-
         fetchCurrentChats.getElapsedTime().observe(this, elapsedTimeObserver);
     }
 }
