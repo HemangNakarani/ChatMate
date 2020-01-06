@@ -22,7 +22,6 @@ public class info extends AppCompatActivity {
     private SwitchCompat mSwitchCompact;
     private LinearLayout mClearChat;
     private LinearLayout mBlock;
-    private ConstraintLayout mDelete;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,7 +34,6 @@ public class info extends AppCompatActivity {
         mSwitchCompact = findViewById(R.id.profile_notification);
         mClearChat = findViewById(R.id.profile_clearchat);
         mBlock = findViewById(R.id.profile_block);
-        mDelete= findViewById(R.id.delete);
 
         mToolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override

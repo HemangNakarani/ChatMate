@@ -157,7 +157,7 @@ public class MessageActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(MessageActivity.this,info.class);
-                intent.putExtra("USER",OppositeUid);
+                intent.putExtra("USER",oppositeUser);
                 startActivity(intent);
             }
         });

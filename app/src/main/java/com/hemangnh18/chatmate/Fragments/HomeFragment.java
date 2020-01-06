@@ -55,7 +55,7 @@ public class HomeFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        Toast.makeText(getActivity(),"Hello Frag ON Pause",Toast.LENGTH_LONG).show();
+        //Toast.makeText(getActivity(),"Hello Frag ON Pause",Toast.LENGTH_LONG).show();
     }
 
     @Override
