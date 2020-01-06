@@ -13,12 +13,14 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.github.tntkhang.fullscreenimageview.library.FullScreenImageViewActivity;
 import com.hemangnh18.chatmate.Classes.DisplayRecent;
+import com.hemangnh18.chatmate.Classes.Methods;
 import com.hemangnh18.chatmate.Classes.User;
 import com.hemangnh18.chatmate.Compressing.Converter;
 import com.hemangnh18.chatmate.ImageViewer.FullScreenImageViewActivity2;
 import com.hemangnh18.chatmate.MessageActivity;
 import com.hemangnh18.chatmate.R;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,11 +30,14 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ViewHo
 
     private Context mContext;
     private List<DisplayRecent> mUsers;
+    private SimpleDateFormat formatter;
 
     public ChatListAdapter(Context mContext,List<DisplayRecent> users)
     {
         this.mContext= mContext;
         this.mUsers = users;
+        String dateFormat = "hh:mm aa dd/MM/yyyy";
+        formatter = new SimpleDateFormat(dateFormat);
     }
 
     @NonNull
@@ -62,7 +67,7 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ViewHo
         } else {
             holder.dp.setImageBitmap(Converter.Base642Bitmap(mUsers.get(k).getBase64()));
         }
-        holder.timestamp.setText(mUsers.get(k).getTime());
+        holder.timestamp.setText(Methods.getTimeStamp(Long.valueOf(mUsers.get(k).getTime()),formatter));
 
         holder.dp.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -88,7 +93,6 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ViewHo
         });
         holder.lastMessage.setText(mUsers.get(k).getMessage());
     }
-
     @Override
     public int getItemCount() {
         return mUsers.size();

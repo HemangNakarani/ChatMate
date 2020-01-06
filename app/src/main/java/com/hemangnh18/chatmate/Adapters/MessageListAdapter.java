@@ -26,6 +26,7 @@ import com.hemangnh18.chatmate.Database.DatabaseHandler;
 import com.hemangnh18.chatmate.R;
 import com.vanniktech.emoji.EmojiTextView;
 
+import java.text.SimpleDateFormat;
 import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -38,6 +39,7 @@ public class MessageListAdapter extends RecyclerView.Adapter {
     private User oppositeUser;
     private String oppositeUid;
     private List<SocketMessage> mMessageList;
+    private SimpleDateFormat formatter;
 
 
     public MessageListAdapter(Context context, List<SocketMessage> messageList, String oppositeUid) {
@@ -46,6 +48,8 @@ public class MessageListAdapter extends RecyclerView.Adapter {
         this.oppositeUid = oppositeUid;
         DatabaseHandler databaseHandler = new DatabaseHandler(context);
         this.oppositeUser = databaseHandler.getUser(oppositeUid);
+        String dateFormat = "hh:mm aa dd/MM/yyyy";
+        formatter = new SimpleDateFormat(dateFormat);
     }
 
     @Override
@@ -57,13 +61,9 @@ public class MessageListAdapter extends RecyclerView.Adapter {
     public int getItemViewType(int position) {
         SocketMessage message = mMessageList.get(position);
 
-        //TODO
-        // Check whether message is sent or received
         if (message.getSender().equals(FirebaseAuth.getInstance().getCurrentUser().getUid())) {
-            // If the current user is the sender of the message
             return VIEW_TYPE_MESSAGE_SENT;
         } else {
-            // If some other user sent the message
             return VIEW_TYPE_MESSAGE_RECEIVED;
         }
     }
@@ -108,34 +108,25 @@ public class MessageListAdapter extends RecyclerView.Adapter {
         }
 
         void bind(SocketMessage message,int pos) {
-
-            timeText.setText(message.getTime());
-            if(pos==mMessageList.size()-1)
-            {
+            timeText.setText(Methods.getTimeStamp(Long.valueOf(message.getTime()),formatter));
+            if(pos==mMessageList.size()-1) {
                 msgStatus.setVisibility(View.VISIBLE);
-            }
-            else
-            {
+            } else {
                 msgStatus.setVisibility(View.GONE);
             }
             UpdateMsgStatus(msgStatus);
 
-            if(isEmoji(message.getMessage()))
-            {
+            if(isEmoji(message.getMessage())) {
                 messageText.setBackgroundColor(Color.argb(0,0,0,0));
                 messageText.setEmojiSize(120);
-                if(isEmojiis(message.getMessage()))
-                {
+                if(isEmojiis(message.getMessage())) {
                     messageText.setEmojiSize(300);
                 }
-            }
-            else
-            {
+            } else {
                 messageText.setBackground(ContextCompat.getDrawable(mContext,R.drawable.rounded_sent));
                 messageText.setEmojiSize(60);
             }
             messageText.setText(message.getMessage());
-
         }
     }
 
@@ -154,9 +145,8 @@ public class MessageListAdapter extends RecyclerView.Adapter {
 
         void bind(SocketMessage message,int position) {
 
-            timeText.setText(message.getTime());
+            timeText.setText(Methods.getTimeStamp(Long.valueOf(message.getTime()),formatter));
             nameText.setText(oppositeUser.getUSERNAME_IN_PHONE());
-
             profileImage.setImageBitmap(Converter.Base642Bitmap(oppositeUser.getBASE64()));
 
             if(position!=0){
@@ -170,17 +160,13 @@ public class MessageListAdapter extends RecyclerView.Adapter {
                 }
             }
 
-            if(isEmoji(message.getMessage()))
-            {
+            if(isEmoji(message.getMessage())) {
                 messageText.setBackgroundColor(Color.argb(0,0,0,0));
                 messageText.setEmojiSize(120);
-                if(isEmojiis(message.getMessage()))
-                {
+                if(isEmojiis(message.getMessage())) {
                     messageText.setEmojiSize(300);
                 }
-            }
-            else
-            {
+            } else {
                 messageText.setBackground(ContextCompat.getDrawable(mContext,R.drawable.chat_message_rounded));
                 messageText.setEmojiSize(60);
             }
@@ -196,8 +182,6 @@ public class MessageListAdapter extends RecyclerView.Adapter {
                 String status = dataSnapshot.getValue(String.class);
                 view.setText(status);
             }
-
-
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
 

@@ -14,6 +14,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -72,6 +73,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private Handler handler;
     private Boolean hasConnection = false;
     private Socket mSocket;
+    private LinearLayout mSplash;
+    private Toolbar toolbar;
     {
         try {
             IO.Options opts = new IO.Options();
@@ -92,6 +95,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        mSplash = findViewById(R.id.splash);
+        toolbar = findViewById(R.id.toolbar);
+
+        final Handler handler1 = new Handler();
+        toolbar.setVisibility(View.INVISIBLE);
+        handler1.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                mSplash.setVisibility(View.GONE);
+                toolbar.setVisibility(View.VISIBLE);
+            }
+        }, 2000);
 
         mAuth = FirebaseAuth.getInstance();
         final FirebaseUser currentUser = mAuth.getCurrentUser();
@@ -154,7 +169,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         //----Drawer----
 
-        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         window = getWindow();
         window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);

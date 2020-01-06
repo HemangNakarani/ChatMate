@@ -9,6 +9,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.provider.ContactsContract;
+import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -26,7 +27,10 @@ import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.iid.InstanceIdResult;
 import com.vanniktech.emoji.EmojiEditText;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Comparator;
+import java.util.Date;
 
 public class Methods {
 
@@ -115,4 +119,18 @@ public class Methods {
         }
     }
 
+    public static String getTimeStamp(long milliSeconds, SimpleDateFormat formatter) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(milliSeconds);
+        String Date = formatter.format(calendar.getTime());
+
+        java.util.Date d = new Date();
+        CharSequence s  = DateFormat.format("dd/MM/yyyy", d.getTime());
+        if(Date.substring(9).equals(s)){
+            Date = Date.substring(0,8);
+        }else {
+            Date = Date.substring(0,8)+"\n"+Date.substring(9);
+        }
+        return Date;
+    }
 }
