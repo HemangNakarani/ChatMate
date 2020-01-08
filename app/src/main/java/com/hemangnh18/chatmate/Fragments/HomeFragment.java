@@ -6,6 +6,7 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.SearchView;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
@@ -13,6 +14,9 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
@@ -42,7 +46,7 @@ import org.greenrobot.eventbus.ThreadMode;
 import java.util.ArrayList;
 import java.util.Collections;
 
-public class HomeFragment extends Fragment {
+public class HomeFragment extends Fragment  {
 
     private RecyclerView recyclerView;
     private ChatListAdapter contactUserAdapter;
@@ -55,7 +59,7 @@ public class HomeFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        //Toast.makeText(getActivity(),"Hello Frag ON Pause",Toast.LENGTH_LONG).show();
+
     }
 
     @Override
@@ -115,5 +119,48 @@ public class HomeFragment extends Fragment {
             }
         };
         fetchCurrentChats.getElapsedTime().observe(this, elapsedTimeObserver);
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.mainactivity_menu,menu);
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        if(item.getItemId()==R.id.menu_search)
+        {
+            SearchView searchView = (SearchView) item.getActionView();
+
+            searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+                @Override
+                public boolean onQueryTextSubmit(String s) {
+                    return false;
+                }
+
+                @Override
+                public boolean onQueryTextChange(String s) {
+                    contactUserAdapter.getFilter().filter(s);
+                    return false;
+                }
+            });
+            return true;
+        }
+        else if(item.getItemId()==R.id.menu_profile)
+        {
+            return true;
+        }
+        else {
+            return false;
+        }
+
     }
 }

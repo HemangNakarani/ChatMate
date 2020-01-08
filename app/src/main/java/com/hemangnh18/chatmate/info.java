@@ -8,11 +8,14 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.CompoundButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
 import com.hemangnh18.chatmate.Classes.User;
+import com.hemangnh18.chatmate.Compressing.Converter;
 
 public class info extends AppCompatActivity {
 
@@ -22,6 +25,7 @@ public class info extends AppCompatActivity {
     private SwitchCompat mSwitchCompact;
     private LinearLayout mClearChat;
     private LinearLayout mBlock;
+    private ImageView header;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,6 +38,7 @@ public class info extends AppCompatActivity {
         mSwitchCompact = findViewById(R.id.profile_notification);
         mClearChat = findViewById(R.id.profile_clearchat);
         mBlock = findViewById(R.id.profile_block);
+        header = findViewById(R.id.header);
 
         mToolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
@@ -47,6 +52,8 @@ public class info extends AppCompatActivity {
             mToolbar.setTitle(oppositeUser.getUSERNAME_IN_PHONE());
             mStatus.setText(oppositeUser.getSTATUS());
             mPhonenumber.setText(oppositeUser.getPHONE());
+            header.setImageBitmap(Converter.Base642Bitmap(oppositeUser.getBASE64()));
+            Glide.with(this).load(oppositeUser.getDOWNLOAD()).into(header);
         }
 
         //todo

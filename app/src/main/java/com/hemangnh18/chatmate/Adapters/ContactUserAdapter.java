@@ -6,6 +6,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AnimationUtils;
+import android.widget.Filter;
+import android.widget.Filterable;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -25,15 +27,17 @@ import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
-public class ContactUserAdapter extends RecyclerView.Adapter<ContactUserAdapter.ViewHolder> {
+public class ContactUserAdapter extends RecyclerView.Adapter<ContactUserAdapter.ViewHolder> implements Filterable {
 
     private Context mContext;
     private List<User> mUsers;
+    private List<User> data_dummy;
 
-    public ContactUserAdapter(Context mContext,List<User> users)
+    public ContactUserAdapter(Context mContext, List<User> users)
     {
         this.mContext= mContext;
         this.mUsers = users;
+        this.data_dummy = users;
     }
 
     @NonNull
@@ -128,5 +132,41 @@ public class ContactUserAdapter extends RecyclerView.Adapter<ContactUserAdapter.
         }
 
     }
+
+    @Override
+    public Filter getFilter() {
+        return examplefilter;
+    }
+
+    private Filter examplefilter = new Filter() {
+        @Override
+        protected FilterResults performFiltering(CharSequence constraint) {
+            List<User> filtered = new ArrayList<>();
+
+            if(constraint == null || constraint.length()==0){
+                filtered.addAll(data_dummy);
+            }else {
+                String check = constraint.toString().toLowerCase().trim();
+
+                for(User items:data_dummy){
+                    if(items.getUSERNAME_IN_PHONE().toLowerCase().contains(check)){
+                        filtered.add(items);
+                    }
+                }
+            }
+
+            FilterResults results = new FilterResults();
+            results.values = filtered;
+
+            return results;
+        }
+
+        @Override
+        protected void publishResults(CharSequence constraint, FilterResults results) {
+            mUsers.clear();
+            mUsers.addAll((List) results.values);
+            notifyDataSetChanged();
+        }
+    };
 
 }

@@ -5,7 +5,10 @@ import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Filter;
+import android.widget.Filterable;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
@@ -26,16 +29,18 @@ import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
-public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ViewHolder> {
+public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ViewHolder>implements Filterable {
 
     private Context mContext;
     private List<DisplayRecent> mUsers;
+    private List<DisplayRecent> data_dummy;
     private SimpleDateFormat formatter;
 
-    public ChatListAdapter(Context mContext,List<DisplayRecent> users)
+    public ChatListAdapter(Context mContext, List<DisplayRecent> users)
     {
         this.mContext= mContext;
         this.mUsers = users;
+        this.data_dummy = users;
         String dateFormat = "hh:mm aa dd/MM/yyyy";
         formatter = new SimpleDateFormat(dateFormat);
     }
@@ -115,5 +120,42 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ViewHo
             timestamp = itemView.findViewById(R.id.timestamp_contact_item);
         }
     }
+
+    @Override
+    public Filter getFilter() {
+        return examplefilter;
+    }
+
+    private Filter examplefilter = new Filter() {
+        @Override
+        protected FilterResults performFiltering(CharSequence constraint) {
+            List<DisplayRecent> filtered = new ArrayList<>();
+
+            if(constraint == null || constraint.length()==0){
+                filtered.addAll(data_dummy);
+                Toast.makeText(mContext,""+data_dummy.size()+" "+mUsers.size(),Toast.LENGTH_SHORT).show();
+            }else {
+                String check = constraint.toString().toLowerCase().trim();
+
+                for(DisplayRecent items:data_dummy){
+                    if(items.getUsername().toLowerCase().contains(check)){
+                        filtered.add(items);
+                    }
+                }
+            }
+
+            FilterResults results = new FilterResults();
+            results.values = filtered;
+
+            return results;
+        }
+
+        @Override
+        protected void publishResults(CharSequence constraint, FilterResults results) {
+            mUsers.clear();
+            mUsers.addAll((List) results.values);
+            notifyDataSetChanged();
+        }
+    };
 
 }

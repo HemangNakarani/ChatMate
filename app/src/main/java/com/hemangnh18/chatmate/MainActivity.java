@@ -15,12 +15,14 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.LinearLayout;
+
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.view.GravityCompat;
@@ -43,6 +45,8 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.iid.InstanceIdResult;
+import com.hemangnh18.chatmate.Adapters.ChatListAdapter;
+import com.hemangnh18.chatmate.Adapters.ContactUserAdapter;
 import com.hemangnh18.chatmate.Fragments.ContactFragment;
 import com.hemangnh18.chatmate.Fragments.HomeFragment;
 import com.hemangnh18.chatmate.Fragments.Profilefragment;
@@ -281,7 +285,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     //----menu bar----
-    @Override
+    /*@Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.mainactivity_menu,menu);
         return true;
@@ -290,16 +294,44 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
 
-        if(item.getItemId()==R.id.logout)
+        if(item.getItemId()==R.id.menu_search)
         {
-            SignOut();
+            SearchView searchView = (SearchView) item.getActionView();
+
+            searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+                @Override
+                public boolean onQueryTextSubmit(String s) {
+                    return false;
+                }
+
+                @Override
+                public boolean onQueryTextChange(String s) {
+                   *//* if(viewPager.getCurrentItem()==1)
+                    {
+                        //mChatListAdapter.getFilter().filter(s);
+                    }
+                    if(viewPager.getCurrentItem()==0)
+                    {
+                        mContactUserAdapter.getFilter().filter(s);
+                    }*//*
+                    return false;
+                }
+            });
+            return true;
+        }
+        else if(item.getItemId()==R.id.menu_settings)
+        {
+            return true;
+        }
+        else if(item.getItemId()==R.id.menu_profile)
+        {
             return true;
         }
         else {
                 return false;
         }
 
-    }
+    }*/
 
 
     //----firebase----
