@@ -118,7 +118,8 @@ public class ContactFragment extends Fragment {
                 contacts.clear();
                 contacts.addAll(aLong);
                 Collections.sort(contacts,Methods.c);
-                contactUserAdapter.notifyDataSetChanged();
+                contactUserAdapter = new ContactUserAdapter(getContext(),contacts);
+                recyclerView.setAdapter(contactUserAdapter);
             }
         };
 

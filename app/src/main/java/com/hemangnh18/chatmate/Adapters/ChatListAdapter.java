@@ -40,7 +40,7 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ViewHo
     {
         this.mContext= mContext;
         this.mUsers = users;
-        this.data_dummy = users;
+        data_dummy = new ArrayList<>(users);
         String dateFormat = "hh:mm aa dd/MM/yyyy";
         formatter = new SimpleDateFormat(dateFormat);
     }
@@ -133,7 +133,6 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ViewHo
 
             if(constraint == null || constraint.length()==0){
                 filtered.addAll(data_dummy);
-                Toast.makeText(mContext,""+data_dummy.size()+" "+mUsers.size(),Toast.LENGTH_SHORT).show();
             }else {
                 String check = constraint.toString().toLowerCase().trim();
 

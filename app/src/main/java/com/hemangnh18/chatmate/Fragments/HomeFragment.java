@@ -115,7 +115,8 @@ public class HomeFragment extends Fragment  {
                 contacts.clear();
                 contacts.addAll(aLong);
                 //Collections.sort(contacts, Methods.c);
-                contactUserAdapter.notifyDataSetChanged();
+                contactUserAdapter = new ChatListAdapter(getContext(),contacts);
+                recyclerView.setAdapter(contactUserAdapter);
             }
         };
         fetchCurrentChats.getElapsedTime().observe(this, elapsedTimeObserver);

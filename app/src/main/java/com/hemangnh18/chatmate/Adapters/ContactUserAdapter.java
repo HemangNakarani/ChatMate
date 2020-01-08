@@ -9,6 +9,7 @@ import android.view.animation.AnimationUtils;
 import android.widget.Filter;
 import android.widget.Filterable;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
@@ -37,7 +38,7 @@ public class ContactUserAdapter extends RecyclerView.Adapter<ContactUserAdapter.
     {
         this.mContext= mContext;
         this.mUsers = users;
-        this.data_dummy = users;
+        data_dummy = new ArrayList<>(users);
     }
 
     @NonNull
