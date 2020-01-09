@@ -5,53 +5,38 @@
     android:outlineSpotShadowColor="#F2DBF7"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    app:cardCornerRadius="24sp"
-    android:layout_marginTop="32dp"
-    android:layout_marginStart="8dp">
-
+    app:cardCornerRadius="8sp"
+    android:layout_marginTop="42dp"
+    android:layout_marginStart="12dp">
     <ImageView
+        android:padding="8dp"
         android:id="@+id/nav_profilepic"
-        android:layout_width="250dp"
-        android:layout_height="250dp"
+        android:layout_width="200dp"
+        android:scaleType="fitStart"
+        android:layout_height="214dp"
         android:src="@drawable/chat_poster">
     </ImageView>
 
     <View
         android:background="@drawable/pink_transparent"
-        android:layout_width="250dp"
-        android:layout_marginTop="140dp"
+        android:layout_width="200dp"
+        android:layout_gravity="bottom"
         android:layout_height="110dp">
     </View>
-
     <LinearLayout
-        android:layout_marginTop="200dp"
-        android:layout_width="250dp"
+        android:layout_gravity="bottom"
+        android:layout_width="wrap_content"
         android:orientation="vertical"
         android:layout_height="wrap_content">
-
         <TextView
             android:id="@+id/nav_username"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Android Noobs"
+            android:text="ChatMate"
             android:textSize="24sp"
             android:textColor="#000000"
             android:layout_marginStart="12dp"
             android:textStyle="bold"
             android:padding="0dp"/>
-
-        <TextView
-            android:id="@+id/nav_status"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Hey There ! I'm Using Chatmate."
-            android:textSize="12sp"
-            android:textColor="#000000"
-            android:layout_marginStart="12dp"
-            android:textStyle="italic"
-            android:maxLines="1"/>
-
     </LinearLayout>
-
-
 </androidx.cardview.widget.CardView>

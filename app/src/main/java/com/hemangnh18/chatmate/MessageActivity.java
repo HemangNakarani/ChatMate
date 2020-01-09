@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.SnapHelper;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
@@ -202,8 +203,9 @@ public class MessageActivity extends AppCompatActivity {
 
         messageList = new ArrayList<>();
         //messageList = chatMessagesHandler.getAllMessages(OppositeUid);
+        SharedPreferences mStorage = getSharedPreferences("Setting",MODE_PRIVATE);
         mMessageRecycler = findViewById(R.id.reyclerview_message_list);
-        mMessageAdapter = new MessageListAdapter(this, messageList,OppositeUid);
+        mMessageAdapter = new MessageListAdapter(this, messageList,OppositeUid,mStorage.getInt("FontSize",1));
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         mMessageRecycler.setLayoutManager(linearLayoutManager);
         mMessageRecycler.setAdapter(mMessageAdapter);

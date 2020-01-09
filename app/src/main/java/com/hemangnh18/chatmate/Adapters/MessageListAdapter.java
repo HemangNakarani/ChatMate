@@ -1,6 +1,7 @@
 package com.hemangnh18.chatmate.Adapters;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -31,6 +32,8 @@ import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
+import static android.content.Context.MODE_PRIVATE;
+
 public class MessageListAdapter extends RecyclerView.Adapter {
     private static final int VIEW_TYPE_MESSAGE_SENT = 1;
     private static final int VIEW_TYPE_MESSAGE_RECEIVED = 2;
@@ -40,9 +43,10 @@ public class MessageListAdapter extends RecyclerView.Adapter {
     private String oppositeUid;
     private List<SocketMessage> mMessageList;
     private SimpleDateFormat formatter;
+    private Integer FontSize;
 
 
-    public MessageListAdapter(Context context, List<SocketMessage> messageList, String oppositeUid) {
+    public MessageListAdapter(Context context, List<SocketMessage> messageList, String oppositeUid, Integer font) {
         mContext = context;
         mMessageList = messageList;
         this.oppositeUid = oppositeUid;
@@ -50,6 +54,20 @@ public class MessageListAdapter extends RecyclerView.Adapter {
         this.oppositeUser = databaseHandler.getUser(oppositeUid);
         String dateFormat = "hh:mm aa dd/MM/yyyy";
         formatter = new SimpleDateFormat(dateFormat);
+
+        switch (font){
+            case 0:
+                FontSize=12;
+                break;
+            case 1:
+                FontSize=14;
+                break;
+            case 2:
+                FontSize=16;
+                break;
+                default:
+                    FontSize=14;
+        }
     }
 
     @Override
@@ -127,6 +145,7 @@ public class MessageListAdapter extends RecyclerView.Adapter {
                 messageText.setEmojiSize(60);
             }
             messageText.setText(message.getMessage());
+            messageText.setTextSize(FontSize);
         }
     }
 
@@ -171,6 +190,7 @@ public class MessageListAdapter extends RecyclerView.Adapter {
                 messageText.setEmojiSize(60);
             }
             messageText.setText(message.getMessage());
+            messageText.setTextSize(FontSize);
         }
     }
 

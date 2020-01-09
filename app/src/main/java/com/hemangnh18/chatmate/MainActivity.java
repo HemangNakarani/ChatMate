@@ -230,9 +230,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         hasConnection = true;
 
     }
-
-
-    //----navigation drawer----
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
 
@@ -250,25 +247,31 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             navigationView.getMenu().getItem(0).setChecked(false);
             navigationView.getMenu().getItem(2).setChecked(false);
 
-        }else if (id == R.id.nav_profile) {
+        }else if (id == R.id.room) {
             viewPager.setCurrentItem(2);
             navigationView.getMenu().getItem(2).setChecked(true);
             navigationView.getMenu().getItem(0).setChecked(false);
             navigationView.getMenu().getItem(1).setChecked(false);
 
-        }else if (id == R.id.nav_suggestion) {
+        }else if (id == R.id.nav_settings) {
 
-        }else if (id == R.id.nav_help) {
+            startActivity(new Intent(MainActivity.this,Settings.class));
+
+        }else if (id == R.id.nav_profile) {
+
+            //TODO
 
         }else if (id == R.id.nav_invite) {
 
-        }else if (id == R.id.nav_aboutapp) {
+            //TODO
+
+        }else if (id == R.id.nav_rate) {
+
+            //TODO
 
         }
-
         delay();
         return true;
-
     }
 
 

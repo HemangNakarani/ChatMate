@@ -4,8 +4,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    tools:showIn="@layout/activity_main"
     tools:context=".MainActivity"
-    tools:showIn="@layout/activity_main">
+    >
 
     <LinearLayout
         android:orientation="vertical"
@@ -24,7 +25,8 @@
             android:background="?attr/colorPrimary"
             android:layout_gravity="center"
             app:contentInsetStart="0dp"
-            app:layout_scrollFlags="scroll|snap|enterAlways"/>
+            app:layout_scrollFlags="scroll|snap|enterAlways">
+        </androidx.appcompat.widget.Toolbar>
     </com.google.android.material.appbar.AppBarLayout>
 
 <!--This is for main layout-->
