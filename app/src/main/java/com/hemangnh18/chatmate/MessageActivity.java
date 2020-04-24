@@ -38,6 +38,7 @@ import com.google.firebase.database.ValueEventListener;
 import com.hemangnh18.chatmate.Adapters.MessageListAdapter;
 import com.hemangnh18.chatmate.Classes.Methods;
 import com.hemangnh18.chatmate.Classes.SocketMessage;
+import com.hemangnh18.chatmate.Classes.Typing;
 import com.hemangnh18.chatmate.Classes.User;
 import com.hemangnh18.chatmate.Compressing.Converter;
 import com.hemangnh18.chatmate.Database.ChatMessagesHandler;
@@ -52,6 +53,7 @@ import com.hemangnh18.chatmate.Threading.ContactsMatching;
 import com.hemangnh18.chatmate.Threading.ContactsMatchingFactory;
 import com.hemangnh18.chatmate.Threading.FetchMessages;
 import com.hemangnh18.chatmate.Threading.FetchMessagesFactory;
+import com.leinardi.android.speeddial.SpeedDialView;
 import com.vanniktech.emoji.EmojiEditText;
 import com.vanniktech.emoji.EmojiManager;
 import com.vanniktech.emoji.EmojiPopup;
@@ -60,6 +62,7 @@ import com.vanniktech.emoji.listeners.OnSoftKeyboardCloseListener;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -97,6 +100,8 @@ public class MessageActivity extends AppCompatActivity {
     private CircleImageView mDPToolbar;
     private TextView mStatusToolbar;
 
+    private SpeedDialView mAttach_menu;
+
 
     @Override
     protected void onStart() {
@@ -115,6 +120,21 @@ public class MessageActivity extends AppCompatActivity {
         mUsernameToolbar = findViewById(R.id.name);
         mDPToolbar = findViewById(R.id.dp_view_toolbar);
         mStatusToolbar = findViewById(R.id.status_toolbar);
+        mAttach_menu = findViewById(R.id.attach_menu);
+        mAttach_menu.inflate(R.menu.attchfilemenu);
+        mAttach_menu.setAlpha((float)0.4);
+        mAttach_menu.setOnChangeListener(new SpeedDialView.OnChangeListener() {
+            @Override
+            public boolean onMainActionSelected() {
+                return false;
+            }
+
+            @Override
+            public void onToggleChanged(boolean isOpen) {
+                    if(isOpen)mAttach_menu.setAlpha((float)1);
+                    else mAttach_menu.setAlpha((float)0.4);
+            }
+        });
 
         // TODO
         //Typing or Online Status
@@ -202,7 +222,6 @@ public class MessageActivity extends AppCompatActivity {
         });
 
         messageList = new ArrayList<>();
-        //messageList = chatMessagesHandler.getAllMessages(OppositeUid);
         SharedPreferences mStorage = getSharedPreferences("Setting",MODE_PRIVATE);
         mMessageRecycler = findViewById(R.id.reyclerview_message_list);
         mMessageAdapter = new MessageListAdapter(this, messageList,OppositeUid,mStorage.getInt("FontSize",1));
@@ -334,6 +353,22 @@ public class MessageActivity extends AppCompatActivity {
         }
     }
 
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onTypeEvent(Typing typing)
+    {
+        if(typing.getSender().equals(OppositeUid)) {
+            if(typing.isTyping())
+            {
+                mStatusToolbar.setText("Typing...");
+            }
+            else
+            {
+                if(isOnline)mStatusToolbar.setText("Online");
+                else mStatusToolbar.setText("Offline");
+            }
+        }
+    }
+
     private void appendMessage(SocketMessage message)
     {
         messageList.add(message);
@@ -389,10 +424,12 @@ public class MessageActivity extends AppCompatActivity {
                     if(dataSnapshot.getValue(String.class).equals("Online"))
                     {
                         isOnline=true;
+                        mStatusToolbar.setText("Online");
                     }
                     else
                     {
                         isOnline=false;
+                        mStatusToolbar.setText("Offline");
                     }
                 }
 

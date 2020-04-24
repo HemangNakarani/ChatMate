@@ -12,6 +12,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.FirebaseDatabase;
 import com.hemangnh18.chatmate.Classes.SocketMessage;
+import com.hemangnh18.chatmate.Classes.Typing;
 import com.hemangnh18.chatmate.Database.ChatMessagesHandler;
 import com.hemangnh18.chatmate.MessageActivity;
 
@@ -45,6 +46,7 @@ public class SocketMethods
             super.handleMessage(msg);
 
             if(time == 0){
+
 
                 //TODO SEND EVENTBUS TO STOP TYPING;
                 startTyping = false;
@@ -136,11 +138,11 @@ public class SocketMethods
                     JSONObject data = (JSONObject) args[0];
 
                     try {
-                        Boolean typingOrNot = data.getBoolean("typing");
-                        String sender = data.getString("sender") + " is Typing......";
 
-                        //TODO SEND EVENTBUS TO SET STATUS,TYPING...
-                        Log.e("TYYYYPPP",sender);
+                        Boolean typingOrNot = data.getBoolean("typing");
+                        final String sender = data.getString("sender");
+
+                        EventBus.getDefault().post(new Typing(sender,true));
 
                         if(typingOrNot){
 
@@ -160,6 +162,8 @@ public class SocketMethods
                                                         }
                                                         time--;
                                                     }
+
+                                                    EventBus.getDefault().post(new Typing(sender,false));
                                                     handler2.sendEmptyMessage(0);
                                                 }
 

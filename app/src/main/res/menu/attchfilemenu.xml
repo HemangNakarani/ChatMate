@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+        <item
+            android:id="@+id/attach_photo"
+            android:icon="@drawable/attachfiles"
+            android:title="Favorite" />
+
+        <item
+            android:id="@+id/attach_video"
+            android:icon="@drawable/ic_delete_black_24dp"
+            android:title="Message" />
+
+        <item
+            android:id="@+id/attach_files"
+            android:icon="@drawable/ic_lock_black_24dp"
+            android:title="Download" />
+
+
+        <item
+            android:id="@+id/attach_contact"
+            android:icon="@drawable/ic_home_black_24dp"
+            android:title="Share" />
+</menu>
