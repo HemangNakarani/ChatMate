@@ -132,9 +132,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 {
                    DatabaseReference reference = UpdateRef.child("Status");
                    reference.setValue("Online");
-
                    reference.onDisconnect().setValue("Offline");
-
                 }
             }
 

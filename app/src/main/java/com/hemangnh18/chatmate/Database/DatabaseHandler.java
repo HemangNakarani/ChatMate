@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.database.CursorIndexOutOfBoundsException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
 import com.hemangnh18.chatmate.Classes.ContactDb;
 import com.hemangnh18.chatmate.Classes.User;
@@ -85,9 +86,6 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         db.close();
     }
 
-
-
-
     public ArrayList<User> getAllUsers() {
 
         ArrayList<User> userList = new ArrayList<User>();
@@ -126,7 +124,34 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     }
 
 
+    public void UpdateUser(User user)
+    {
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor cursor = db.query(TABLE_CONTACTS, null, KEY_USER_ID + "=?",
+                new String[] { String.valueOf(user.getUSER_ID()) }, null, null, null, null);
+        if(cursor.moveToFirst())
+        {
+            Log.e("Update:",user.getUSERNAME());
+            ContentValues values = new ContentValues();
+            values.put(KEY_USERNAME, user.getUSERNAME());
+            values.put(KEY_USERNAME_IN_PHONE, user.getUSERNAME_IN_PHONE());
+            values.put(KEY_PHONE, user.getPHONE());
+            values.put(KEY_USER_ID, user.getUSER_ID());
+            values.put(KEY_DOWNLOAD, user.getDOWNLOAD());
+            values.put(KEY_BASE64, user.getBASE64());
+            values.put(KEY_STATUS, user.getSTATUS());
+            values.put(KEY_GENDER, user.getGENDER());
+            values.put(KEY_TOKEN, user.getTOKEN());
+            db.update(TABLE_CONTACTS, values, KEY_USER_ID + "=?", new String[]{String.valueOf(user.getUSER_ID())});
+            db.close();
+        }
+        else
+        {
+            addUser(user);
+            Log.e("ADD:",user.getUSERNAME());
+        }
 
+    }
     public User getUser(String id) {
 
         SQLiteDatabase db = this.getReadableDatabase();

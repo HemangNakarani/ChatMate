@@ -74,7 +74,6 @@ public class ContactsMatching extends ViewModel {
                     if(phoneNumber.length()==10)
                     {
                         phoneNumber="+91"+phoneNumber;
-
                     }
 
                     if(phoneNumber.length()==13)
@@ -84,8 +83,8 @@ public class ContactsMatching extends ViewModel {
                     }
                 }
 
-                final DatabaseHandler handler = new DatabaseHandler(context);
-                handler.DeleteAll();
+                final DatabaseHandler databaseHandler = new DatabaseHandler(context);
+
                 for (final Map.Entry<String, String> entry : namePhoneMap.entrySet()) {
 
                     final DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Users");
@@ -101,8 +100,8 @@ public class ContactsMatching extends ViewModel {
 
                                         User user = dataSnapshot.getValue(User.class);
                                         user.setUSERNAME_IN_PHONE(entry.getValue());
-                                        handler.addUser(user);
                                         userList.add(user);
+                                        databaseHandler.UpdateUser(user);
                                         mContactsList.postValue(userList);
                                         Log.e("HELLO?>>>>",user.getUSERNAME_IN_PHONE()+" "+user.getUSER_ID());
                                         reference1.removeEventListener(this);
@@ -112,7 +111,6 @@ public class ContactsMatching extends ViewModel {
 
                                     }
                                 });
-
                                 reference.removeEventListener(this);
                             } else {
                                 Log.e("NO>>>>", "NOOOOO");
@@ -125,6 +123,8 @@ public class ContactsMatching extends ViewModel {
                         }
                     });
                 }
+
+
                 phones.close();
                 service.shutdown();
 

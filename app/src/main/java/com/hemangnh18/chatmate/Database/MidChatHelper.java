@@ -46,8 +46,6 @@ public class MidChatHelper extends SQLiteOpenHelper {
         db.execSQL(CREATE_CONTACTS_TABLE);
     }
 
-
-
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 
@@ -74,12 +72,20 @@ public class MidChatHelper extends SQLiteOpenHelper {
         Cursor cursor = db.query(TABLE_CONTACTS, null, KEY_USER_ID + "=?",
                 new String[] { String.valueOf(id) }, null, null, null, null);
 
+        DisplayRecent displayRecent = new DisplayRecent(id,message,time,true);
+        EventBus.getDefault().post(displayRecent);
+
         if(!cursor.moveToFirst())
         {
-            DisplayRecent displayRecent = new DisplayRecent(id,message,time,true);
-            EventBus.getDefault().post(displayRecent);
             addUser(id,message,time);
+            db.close();
         }
+        else
+        {
+            UpdateLast(id,message,time);
+            db.close();
+        }
+
     }
 
 
@@ -88,8 +94,8 @@ public class MidChatHelper extends SQLiteOpenHelper {
         ContentValues args = new ContentValues();
         SQLiteDatabase db= this.getWritableDatabase();
         args.put(KEY_LAST_MSG, message);
-        args.put(KEY_READ, time);
-        db.update(TABLE_CONTACTS,args, KEY_USER_ID + " = ?",new String[]{id});
+        args.put(KEY_TIME, time);
+        db.update(TABLE_CONTACTS,args, KEY_USER_ID + " = ?", new String[]{String.valueOf(id)});
         db.close();
     }
 

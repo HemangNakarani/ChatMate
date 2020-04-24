@@ -96,6 +96,15 @@ public class Methods {
         }
     };
 
+    public static Comparator<DisplayRecent> ttt = new Comparator<DisplayRecent>()
+    {
+        public int compare(DisplayRecent u1, DisplayRecent u2)
+        {
+            return u2.getTime().compareTo(u1.getTime());
+        }
+    };
+
+
 
    public static void getToken()
     {

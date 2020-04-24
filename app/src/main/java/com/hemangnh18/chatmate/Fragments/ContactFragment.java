@@ -31,18 +31,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.iid.FirebaseInstanceId;
-import com.google.firebase.iid.InstanceIdResult;
 import com.hemangnh18.chatmate.Adapters.ContactUserAdapter;
-import com.hemangnh18.chatmate.Classes.ContactDb;
 import com.hemangnh18.chatmate.Classes.Methods;
 import com.hemangnh18.chatmate.Classes.User;
 import com.hemangnh18.chatmate.Database.DatabaseHandler;
@@ -62,6 +51,7 @@ public class ContactFragment extends Fragment {
     private ContactUserAdapter contactUserAdapter;
     private ArrayList<User> contacts;
     private ContactsMatching contactsMatching;
+    private DatabaseHandler handler;
     public ContactFragment() {
         // Required empty public constructor
     }
@@ -89,21 +79,19 @@ public class ContactFragment extends Fragment {
         }
         else
         {
+
             if(hasConnection()) {
                 ContactsMatchingFactory factory = new ContactsMatchingFactory(getContext());
                 contactsMatching = ViewModelProviders.of(this, factory).get(ContactsMatching.class);
                 subscribe();
             }
-            else
-            {
-                Toast.makeText(getContext(),"No Connection",Toast.LENGTH_LONG).show();
-                    DatabaseHandler handler = new DatabaseHandler(getContext());
-                    contacts.clear();
-                    contacts.addAll(handler.getAllUsers());
-                    Collections.sort(contacts,Methods.c);
-                    contactUserAdapter.notifyDataSetChanged();
+            else {
+                Toast.makeText(getContext(), "No Connection", Toast.LENGTH_LONG).show();
+                handler = new DatabaseHandler(getContext());
+                contacts.addAll(handler.getAllUsers());
+                Collections.sort(contacts,Methods.c);
+                contactUserAdapter.notifyDataSetChanged();
             }
-
         }
 
         return view;
@@ -120,6 +108,7 @@ public class ContactFragment extends Fragment {
                 Collections.sort(contacts,Methods.c);
                 contactUserAdapter = new ContactUserAdapter(getContext(),contacts);
                 recyclerView.setAdapter(contactUserAdapter);
+
             }
         };
 

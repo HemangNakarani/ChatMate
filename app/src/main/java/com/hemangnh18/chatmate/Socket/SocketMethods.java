@@ -140,6 +140,7 @@ public class SocketMethods
                         String sender = data.getString("sender") + " is Typing......";
 
                         //TODO SEND EVENTBUS TO SET STATUS,TYPING...
+                        Log.e("TYYYYPPP",sender);
 
                         if(typingOrNot){
 
@@ -153,7 +154,7 @@ public class SocketMethods
                                                     synchronized (this){
                                                         try {
                                                             wait(1000);
-                                                            //Log.e(TAG, "run: typing " + time);
+                                                            Log.e(TAG, "run: typing " + time);
                                                         } catch (InterruptedException e) {
                                                             e.printStackTrace();
                                                         }

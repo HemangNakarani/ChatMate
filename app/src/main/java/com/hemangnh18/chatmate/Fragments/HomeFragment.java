@@ -13,6 +13,7 @@ import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -24,18 +25,13 @@ import android.widget.Toast;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.FirebaseDatabase;
 import com.hemangnh18.chatmate.Adapters.ChatListAdapter;
-import com.hemangnh18.chatmate.Adapters.ContactUserAdapter;
-import com.hemangnh18.chatmate.Adapters.MessageListAdapter;
 import com.hemangnh18.chatmate.Classes.DisplayRecent;
-import com.hemangnh18.chatmate.Classes.FirstChatUser;
 import com.hemangnh18.chatmate.Classes.Methods;
 import com.hemangnh18.chatmate.Classes.SocketMessage;
 import com.hemangnh18.chatmate.Classes.User;
 import com.hemangnh18.chatmate.Database.DatabaseHandler;
 import com.hemangnh18.chatmate.Database.MidChatHelper;
 import com.hemangnh18.chatmate.R;
-import com.hemangnh18.chatmate.Threading.ContactsMatching;
-import com.hemangnh18.chatmate.Threading.ContactsMatchingFactory;
 import com.hemangnh18.chatmate.Threading.FetchCurrentChats;
 import com.hemangnh18.chatmate.Threading.FetchCurrentChatsFactory;
 
@@ -52,6 +48,7 @@ public class HomeFragment extends Fragment  {
     private ChatListAdapter contactUserAdapter;
     private ArrayList<DisplayRecent> contacts;
     private FetchCurrentChats fetchCurrentChats;
+    private MidChatHelper midChatHelper;
 
     public HomeFragment() {
     }
@@ -59,6 +56,8 @@ public class HomeFragment extends Fragment  {
     @Override
     public void onResume() {
         super.onResume();
+
+        Toast.makeText(getContext(),"Resume",Toast.LENGTH_LONG).show();
 
     }
 
@@ -86,25 +85,62 @@ public class HomeFragment extends Fragment  {
         contacts =  new ArrayList<>();
         contactUserAdapter = new ChatListAdapter(getContext(),contacts);
         recyclerView.setAdapter(contactUserAdapter);
+        midChatHelper = new MidChatHelper(getContext());
 
         FetchCurrentChatsFactory factory = new FetchCurrentChatsFactory(getContext());
         fetchCurrentChats = ViewModelProviders.of(this,factory).get(FetchCurrentChats.class);
         subscribe();
         return view;
+
+    }
+
+
+
+
+    @Subscribe
+    public void onMessageEvent(SocketMessage event)
+    {
+        FirebaseDatabase.getInstance().getReference("MsgStatus").child(event.getSender()).child(FirebaseAuth.getInstance().getCurrentUser().getUid()).setValue("Delivered");
+        midChatHelper.Exists(event.getSender(),event.getMessage(),event.getTime());
     }
 
     @Subscribe
     public void onFirstChat(DisplayRecent event)
     {
-       Event(event);
+        Event(event);
+        Log.e("BHOSADBILAAA>>>",event.getMessage());
     }
+
     private void Event(DisplayRecent displayRecent)
     {
         DatabaseHandler databaseHandler = new DatabaseHandler(getActivity());
         User user = databaseHandler.getUser(displayRecent.getId());
         displayRecent.setBase64(user.getBASE64());
         displayRecent.setUsername(user.getUSERNAME_IN_PHONE());
-        contacts.add(displayRecent);
+
+        // Code Part -------------------------------------------
+        int flag=-1;
+        for(int i=0;i<contacts.size();i++)
+        {
+            if(contacts.get(i).getId().equals(displayRecent.getId()))
+            {
+                    flag=i;
+
+                    break;
+            }
+        }
+
+        if(flag!=-1)
+        {
+            contacts.remove(flag);
+            contacts.add(0,displayRecent);
+        }
+        else
+        {
+            contacts.add(0,displayRecent);
+        }
+
+
         contactUserAdapter.notifyDataSetChanged();
     }
 
@@ -114,11 +150,12 @@ public class HomeFragment extends Fragment  {
             public void onChanged(@Nullable final ArrayList<DisplayRecent> aLong) {
                 contacts.clear();
                 contacts.addAll(aLong);
-                //Collections.sort(contacts, Methods.c);
+                Collections.sort(contacts, Methods.ttt);
                 contactUserAdapter = new ChatListAdapter(getContext(),contacts);
                 recyclerView.setAdapter(contactUserAdapter);
             }
         };
+
         fetchCurrentChats.getElapsedTime().observe(this, elapsedTimeObserver);
     }
 
@@ -140,7 +177,6 @@ public class HomeFragment extends Fragment  {
         if(item.getItemId()==R.id.menu_search)
         {
             SearchView searchView = (SearchView) item.getActionView();
-
             searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
                 @Override
                 public boolean onQueryTextSubmit(String s) {
