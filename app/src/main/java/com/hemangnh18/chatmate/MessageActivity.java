@@ -11,11 +11,14 @@ import androidx.recyclerview.widget.PagerSnapHelper;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.SnapHelper;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -53,6 +56,7 @@ import com.hemangnh18.chatmate.Threading.ContactsMatching;
 import com.hemangnh18.chatmate.Threading.ContactsMatchingFactory;
 import com.hemangnh18.chatmate.Threading.FetchMessages;
 import com.hemangnh18.chatmate.Threading.FetchMessagesFactory;
+import com.leinardi.android.speeddial.SpeedDialActionItem;
 import com.leinardi.android.speeddial.SpeedDialView;
 import com.vanniktech.emoji.EmojiEditText;
 import com.vanniktech.emoji.EmojiManager;
@@ -66,6 +70,7 @@ import org.greenrobot.eventbus.ThreadMode;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -102,6 +107,12 @@ public class MessageActivity extends AppCompatActivity {
 
     private SpeedDialView mAttach_menu;
 
+    private final static int SELECT_IMAGE = 251;
+    private final static int SELECT_VIDEO = 252;
+    private final static int SELECT_FILE = 253 ;
+    private final static int SELECT_CONTACT = 254;
+
+
 
     @Override
     protected void onStart() {
@@ -135,9 +146,49 @@ public class MessageActivity extends AppCompatActivity {
                     else mAttach_menu.setAlpha((float)0.4);
             }
         });
+        mAttach_menu.setOnActionSelectedListener(new SpeedDialView.OnActionSelectedListener() {
+            @Override
+            public boolean onActionSelected(SpeedDialActionItem actionItem) {
 
-        // TODO
-        //Typing or Online Status
+                int id = actionItem.getId();
+
+                if(id==R.id.attach_photo)
+                {
+                    Intent i = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                    startActivityForResult(i, SELECT_IMAGE);
+                }
+
+                if(id==R.id.attach_video)
+                {
+                    Intent i = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Video.Media.EXTERNAL_CONTENT_URI);
+                    startActivityForResult(i, SELECT_VIDEO);
+                }
+
+                if(id==R.id.attach_files)
+                {
+                    Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+                    intent.setType("*/*");
+                    intent.addCategory(Intent.CATEGORY_OPENABLE);
+                    try {
+                        startActivityForResult(
+                                Intent.createChooser(intent, "Select a File to Upload"),
+                                SELECT_FILE);
+                    } catch (android.content.ActivityNotFoundException ex) {
+                        // Potentially direct the user to the Market with a Dialog
+                        Toast.makeText(MessageActivity.this, "Please install a File Manager.", Toast.LENGTH_SHORT).show();
+                    }
+                }
+
+                if(id==R.id.attach_contact)
+                {
+                    Toast.makeText(MessageActivity.this,"Contacts Attached Soon..",Toast.LENGTH_LONG).show();
+                }
+
+                return false;
+
+            }
+        });
+
 
         final DatabaseReference infoConnected = FirebaseDatabase.getInstance().getReference(".info/connected");
         final DatabaseReference UpdateRef = FirebaseDatabase.getInstance().getReference("/Status/"+FirebaseAuth.getInstance().getCurrentUser().getUid());
@@ -188,6 +239,7 @@ public class MessageActivity extends AppCompatActivity {
                 finish();
             }
         });
+
         mUsernameToolbar.setText(oppositeUser.getUSERNAME_IN_PHONE());
         mDPToolbar.setImageBitmap(Converter.Base642Bitmap(oppositeUser.getBASE64()));
 
@@ -304,10 +356,7 @@ public class MessageActivity extends AppCompatActivity {
                 }
             });
         }
-
-
         onTypeButtonEnable();
-
     }
 
 
@@ -457,5 +506,16 @@ public class MessageActivity extends AppCompatActivity {
         fetchMessages.getElapsedTime().observe(this, elapsedTimeObserver);
     }
 
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == SELECT_IMAGE) {
+            if (resultCode == Activity.RESULT_OK)
+            {
+                if (data != null) {
+                    Toast.makeText(MessageActivity.this, data.getData().getPath().toString(), Toast.LENGTH_SHORT).show();
+                }
+            }
+        }
+    }
 
 }

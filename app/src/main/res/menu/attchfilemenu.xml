@@ -3,22 +3,21 @@
 
         <item
             android:id="@+id/attach_photo"
-            android:icon="@drawable/attachfiles"
-            android:title="Favorite" />
+            android:icon="@drawable/attach_image"
+            android:title="Photo" />
 
         <item
             android:id="@+id/attach_video"
-            android:icon="@drawable/ic_delete_black_24dp"
-            android:title="Message" />
+            android:icon="@drawable/ic_ondemand_video_black_24dp"
+            android:title="Video" />
 
         <item
             android:id="@+id/attach_files"
-            android:icon="@drawable/ic_lock_black_24dp"
-            android:title="Download" />
-
+            android:icon="@drawable/attach_files"
+            android:title="Files" />
 
         <item
             android:id="@+id/attach_contact"
-            android:icon="@drawable/ic_home_black_24dp"
-            android:title="Share" />
+            android:icon="@drawable/ic_contacts_black_24dp"
+            android:title="Contact" />
 </menu>
