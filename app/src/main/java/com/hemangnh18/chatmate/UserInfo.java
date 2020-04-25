@@ -2,6 +2,7 @@ package com.hemangnh18.chatmate;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.cardview.widget.CardView;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -22,6 +23,7 @@ import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
@@ -48,26 +50,34 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
+
 import de.hdodenhof.circleimageview.CircleImageView;
+
+import static com.hemangnh18.chatmate.Compressing.Converter.Base642Bitmap;
 
 public class UserInfo extends AppCompatActivity {
 
 
-    private CircleImageView mDp,mDPChanger;
+    private CircleImageView mDp, mDPChanger;
     private FirebaseAuth firebaseAuth;
     private FirebaseUser firebaseUser;
-    private TextInputLayout mUsername,mStatus;
+    private TextInputLayout mUsername, mStatus;
     private Button mProceed;
     private RadioGroup mGender;
-    private RadioButton mMale,mFemale;
+    private RadioButton mMale, mFemale;
     private DatabaseReference reference;
     private Uri imageUri;
+    private Boolean show_info = false;
     private static final int WRITE_EXTERNAL_STORAGE_REQUEST_CODE = 54654;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user_info);
+
+        if (getIntent().getBooleanExtra("Show_Info", false)) {
+            show_info = true;
+        }
 
         firebaseAuth = FirebaseAuth.getInstance();
         firebaseUser = firebaseAuth.getCurrentUser();
@@ -81,93 +91,119 @@ public class UserInfo extends AppCompatActivity {
         mFemale = findViewById(R.id.female);
 
 
-        findViewById(R.id.dp_changer).setAnimation(AnimationUtils.loadAnimation(getApplicationContext(),R.anim.pop_in));
-        mProceed.setAnimation(AnimationUtils.loadAnimation(getApplicationContext(),R.anim.pop_in));
-        mGender.setAnimation(AnimationUtils.loadAnimation(getApplicationContext(),R.anim.pop_in));
-        mUsername.setAnimation(AnimationUtils.loadAnimation(getApplicationContext(),R.anim.pop_in));
-        mStatus.setAnimation(AnimationUtils.loadAnimation(getApplicationContext(),R.anim.pop_in));
+        if (show_info) {
+
+            SharedPreferences preferences = getSharedPreferences("UserInfo", Context.MODE_PRIVATE);
+            SharedPreferences.Editor editor = preferences.edit();
+
+            Gson gson = new Gson();
+            String json = preferences.getString("User", "");
+            User user1 = gson.fromJson(json, User.class);
+
+            mDp.setImageBitmap(Base642Bitmap(user1.getBASE64()));
+            mUsername.getEditText().setText(user1.getUSERNAME());
+            mStatus.getEditText().setText(user1.getSTATUS());
+
+            if (user1.getGENDER().equals("Male")) {
+                mMale.setChecked(true);
+                mFemale.setChecked(false);
+            } else {
+                mFemale.setChecked(true);
+                mMale.setChecked(false);
+            }
+            CardView NumberLayout = findViewById(R.id.number_card);
+            NumberLayout.setVisibility(View.VISIBLE);
+            ((TextInputLayout) findViewById(R.id.number)).getEditText().setText(firebaseUser.getPhoneNumber());
+        }
+
+
+//        findViewById(R.id.dp_changer).setAnimation(AnimationUtils.loadAnimation(getApplicationContext(), R.anim.pop_in));
+//        mProceed.setAnimation(AnimationUtils.loadAnimation(getApplicationContext(), R.anim.pop_in));
+//        mGender.setAnimation(AnimationUtils.loadAnimation(getApplicationContext(), R.anim.pop_in));
+//        mUsername.setAnimation(AnimationUtils.loadAnimation(getApplicationContext(), R.anim.pop_in));
+//        mStatus.setAnimation(AnimationUtils.loadAnimation(getApplicationContext(), R.anim.pop_in));
 
         mDPChanger.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE,Manifest.permission.READ_EXTERNAL_STORAGE}, WRITE_EXTERNAL_STORAGE_REQUEST_CODE);
+                    requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE}, WRITE_EXTERNAL_STORAGE_REQUEST_CODE);
                     return;
                 }
                 openImage();
             }
         });
 
+        if (show_info) {
+            mProceed.setText("Save");
+        } else {
+            mProceed.setText("Proceed");
+        }
+
         mProceed.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
                 String user = mUsername.getEditText().getText().toString().trim();
                 String status = mStatus.getEditText().getText().toString().trim();
 
-                SharedPreferences preferences = getSharedPreferences("UserInfo",Context.MODE_PRIVATE);
+                SharedPreferences preferences = getSharedPreferences("UserInfo", Context.MODE_PRIVATE);
                 SharedPreferences.Editor editor = preferences.edit();
 
                 Gson gson = new Gson();
-                String json = preferences.getString("User","");
-                User user1 = gson.fromJson(json,User.class);
+                String json = preferences.getString("User", "");
+                User user1 = gson.fromJson(json, User.class);
 
-                if(user.equals(""))
-                {
-                    user1.setUSERNAME("User "+ firebaseUser.getUid());
-                }
-                else
-                {
+                if (user.equals("")) {
+                    user1.setUSERNAME("User " + firebaseUser.getUid());
+                } else {
                     user1.setUSERNAME(user);
                 }
 
-                if(mMale.isChecked())
-                {
+                if (mMale.isChecked()) {
                     user1.setGENDER("Male");
-                }
-                else if(mFemale.isChecked())
-                {
+                } else if (mFemale.isChecked()) {
                     user1.setGENDER("Female");
                 }
 
-                if(imageUri!=null)
-                {
+                if (imageUri != null) {
                     user1.setDP(imageUri.toString());
                 }
 
-                if(!status.equals("")){
+                if (!status.equals("")) {
                     user1.setSTATUS(status);
                 }
 
-
-                editor.putString("User",gson.toJson(user1));
+                editor.putString("User", gson.toJson(user1));
                 editor.apply();
-                DatabaseReference reference=FirebaseDatabase.getInstance().getReference("Users").child(firebaseUser.getPhoneNumber());
-                HashMap<String,Object> hashMap = new HashMap<>();
-                hashMap.put("PHONE",firebaseUser.getPhoneNumber());
-                hashMap.put("USER_ID",firebaseUser.getUid());
-                hashMap.put("USERNAME",user);
-                hashMap.put("STATUS",status);
-                hashMap.put("GENDER",user1.getGENDER());
-                hashMap.put("DOWNLOAD",user1.getDOWNLOAD());
-                hashMap.put("BASE64",user1.getBASE64());
-                hashMap.put("TOKEN",user1.getTOKEN());
+                DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Users").child(firebaseUser.getPhoneNumber());
+                HashMap<String, Object> hashMap = new HashMap<>();
+                hashMap.put("PHONE", firebaseUser.getPhoneNumber());
+                hashMap.put("USER_ID", firebaseUser.getUid());
+                hashMap.put("USERNAME", user);
+                hashMap.put("STATUS", status);
+                hashMap.put("GENDER", user1.getGENDER());
+                hashMap.put("DOWNLOAD", user1.getDOWNLOAD());
+                hashMap.put("BASE64", user1.getBASE64());
+                hashMap.put("TOKEN", user1.getTOKEN());
 
                 reference.setValue(hashMap).addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
 
                         //TODO SHOW LOADING : DEVEN
-
-                        Intent intent = new Intent(UserInfo.this,MainActivity.class);
-                        startActivity(intent);
-                        finish();
+                        if (show_info) {
+                            finish();
+                        } else {
+                            Intent intent = new Intent(UserInfo.this, MainActivity.class);
+                            startActivity(intent);
+                            finish();
+                        }
                     }
                 });
 
             }
         });
-
 
         DirectoryHelper.createDirectory(this);
 
@@ -176,12 +212,9 @@ public class UserInfo extends AppCompatActivity {
 
     private void openImage() {
 
-        try
-        {
-            CropImage.activity().setCropShape(CropImageView.CropShape.OVAL).setAspectRatio(1,1).start(UserInfo.this);
-        }
-        catch (NullPointerException e)
-        {
+        try {
+            CropImage.activity().setCropShape(CropImageView.CropShape.OVAL).setAspectRatio(1, 1).start(UserInfo.this);
+        } catch (NullPointerException e) {
             e.printStackTrace();
         }
 
@@ -195,19 +228,16 @@ public class UserInfo extends AppCompatActivity {
             CropImage.ActivityResult result = CropImage.getActivityResult(data);
             if (resultCode == RESULT_OK) {
                 imageUri = result.getUri();
-                if(imageUri==null)
-                {
-                    Toast.makeText(UserInfo.this,"No Image Selected",Toast.LENGTH_SHORT).show();
-                }
-                else
-                {
+                if (imageUri == null) {
+                    Toast.makeText(UserInfo.this, "No Image Selected", Toast.LENGTH_SHORT).show();
+                } else {
                     Glide.with(this).load(imageUri.getPath()).into(mDp);
                     customCompressImage(new File(imageUri.getPath()));
                     new UploadDocsAsyncTask(this).execute(imageUri);
                 }
             } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
                 Exception error = result.getError();
-                Toast.makeText(UserInfo.this,error.toString(),Toast.LENGTH_LONG).show();
+                Toast.makeText(UserInfo.this, error.toString(), Toast.LENGTH_LONG).show();
             }
         }
     }
@@ -218,7 +248,7 @@ public class UserInfo extends AppCompatActivity {
         if (requestCode == WRITE_EXTERNAL_STORAGE_REQUEST_CODE) {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED)
                 DirectoryHelper.createDirectory(this);
-                openImage();
+            openImage();
         }
     }
 
@@ -232,26 +262,26 @@ public class UserInfo extends AppCompatActivity {
                         .setMaxHeight(480)
                         .setQuality(75)
                         .setCompressFormat(Bitmap.CompressFormat.WEBP)
-                        .setDestinationDirectoryPath(Environment.getExternalStorageDirectory().getAbsolutePath()+"/ChatMate/DP")
+                        .setDestinationDirectoryPath(Environment.getExternalStorageDirectory().getAbsolutePath() + "/ChatMate/DP")
                         .compressToFile(actualImage);
 
                 String base64 = Converter.File2Base64(compressedImage);
 
-                SharedPreferences preferences = getSharedPreferences("UserInfo",Context.MODE_PRIVATE);
+                SharedPreferences preferences = getSharedPreferences("UserInfo", Context.MODE_PRIVATE);
                 SharedPreferences.Editor editor = preferences.edit();
 
                 Gson gson = new Gson();
-                String json = preferences.getString("User","");
-                User user = gson.fromJson(json,User.class);
+                String json = preferences.getString("User", "");
+                User user = gson.fromJson(json, User.class);
                 user.setBASE64(base64);
-                editor.putString("User",gson.toJson(user));
+                editor.putString("User", gson.toJson(user));
                 editor.apply();
 
                 reference = FirebaseDatabase.getInstance().getReference("Users").child(firebaseUser.getPhoneNumber());
-                HashMap<String ,Object> hashMap = new HashMap<>();
-                hashMap.put("BASE64",base64);
+                HashMap<String, Object> hashMap = new HashMap<>();
+                hashMap.put("BASE64", base64);
                 reference.updateChildren(hashMap);
-                Log.e("BASE64>>>",base64);
+                Log.e("BASE64>>>", base64);
 
             } catch (IOException e) {
                 e.printStackTrace();
@@ -259,7 +289,6 @@ public class UserInfo extends AppCompatActivity {
             }
         }
     }
-
 
 
 }

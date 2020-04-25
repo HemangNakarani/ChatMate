@@ -3,10 +3,14 @@ package com.hemangnh18.chatmate.Adapters;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
@@ -44,6 +48,7 @@ public class MessageListAdapter extends RecyclerView.Adapter {
     private List<SocketMessage> mMessageList;
     private SimpleDateFormat formatter;
     private Integer FontSize;
+    private int position;
 
 
     public MessageListAdapter(Context context, List<SocketMessage> messageList, String oppositeUid, Integer font) {
@@ -55,19 +60,33 @@ public class MessageListAdapter extends RecyclerView.Adapter {
         String dateFormat = "hh:mm aa dd/MM/yyyy";
         formatter = new SimpleDateFormat(dateFormat);
 
-        switch (font){
+        switch (font) {
             case 0:
-                FontSize=12;
+                FontSize = 12;
                 break;
             case 1:
-                FontSize=14;
+                FontSize = 14;
                 break;
             case 2:
-                FontSize=16;
+                FontSize = 16;
                 break;
-                default:
-                    FontSize=14;
+            default:
+                FontSize = 14;
         }
+    }
+
+    public int getPosition() {
+        return position;
+    }
+
+    public void setPosition(int position) {
+        this.position = position;
+    }
+
+    @Override
+    public void onViewRecycled(@NonNull RecyclerView.ViewHolder holder) {
+        holder.itemView.setOnLongClickListener(null);
+        super.onViewRecycled(holder);
     }
 
     @Override
@@ -102,20 +121,21 @@ public class MessageListAdapter extends RecyclerView.Adapter {
     }
 
     @Override
-    public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+    public void onBindViewHolder(final RecyclerView.ViewHolder holder, int position) {
         SocketMessage message = mMessageList.get(position);
 
         switch (holder.getItemViewType()) {
             case VIEW_TYPE_MESSAGE_SENT:
-                ((SentMessageHolder) holder).bind(message,position);
+                ((SentMessageHolder) holder).bind(message, position);
                 break;
             case VIEW_TYPE_MESSAGE_RECEIVED:
-                ((ReceivedMessageHolder) holder).bind(message,position);
+                ((ReceivedMessageHolder) holder).bind(message, position);
         }
     }
 
-    private class SentMessageHolder extends RecyclerView.ViewHolder {
-        TextView timeText,msgStatus;
+
+    private class SentMessageHolder extends RecyclerView.ViewHolder implements View.OnCreateContextMenuListener {
+        TextView timeText, msgStatus;
         EmojiTextView messageText;
 
         SentMessageHolder(View itemView) {
@@ -123,34 +143,52 @@ public class MessageListAdapter extends RecyclerView.Adapter {
             messageText = itemView.findViewById(R.id.text_message_body);
             timeText = itemView.findViewById(R.id.text_message_time);
             msgStatus = itemView.findViewById(R.id.msgstatus);
+            messageText.setOnCreateContextMenuListener(this);
         }
 
-        void bind(SocketMessage message,int pos) {
-            timeText.setText(Methods.getTimeStamp(Long.valueOf(message.getTime()),formatter));
-            if(pos==mMessageList.size()-1) {
+        void bind(SocketMessage message, final int pos) {
+            timeText.setText(Methods.getTimeStamp(Long.valueOf(message.getTime()), formatter));
+            if (pos == mMessageList.size() - 1) {
                 msgStatus.setVisibility(View.VISIBLE);
             } else {
                 msgStatus.setVisibility(View.GONE);
             }
             UpdateMsgStatus(msgStatus);
 
-            if(isEmoji(message.getMessage())) {
-                messageText.setBackgroundColor(Color.argb(0,0,0,0));
+            if (isEmoji(message.getMessage())) {
+                messageText.setBackgroundColor(Color.argb(0, 0, 0, 0));
                 messageText.setEmojiSize(120);
-                if(isEmojiis(message.getMessage())) {
+                if (isEmojiis(message.getMessage())) {
                     messageText.setEmojiSize(300);
                 }
             } else {
-                messageText.setBackground(ContextCompat.getDrawable(mContext,R.drawable.rounded_sent));
+                messageText.setBackground(ContextCompat.getDrawable(mContext, R.drawable.rounded_sent));
                 messageText.setEmojiSize(60);
             }
             messageText.setText(message.getMessage());
             messageText.setTextSize(FontSize);
+
+            messageText.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    //Toast.makeText(mContext, "Long Pressed", Toast.LENGTH_SHORT).show();
+                    setPosition(pos);
+                    return false;
+                }
+            });
+        }
+
+        @Override
+        public void onCreateContextMenu(ContextMenu menu, View view, ContextMenu.ContextMenuInfo contextMenuInfo) {
+            MenuInflater inflater = new MenuInflater(mContext);
+            inflater.inflate(R.menu.context_menu_message, menu);
+            menu.setHeaderTitle("Select");
         }
     }
 
-    private class ReceivedMessageHolder extends RecyclerView.ViewHolder {
-        TextView timeText, nameText;EmojiTextView messageText;
+    private class ReceivedMessageHolder extends RecyclerView.ViewHolder implements View.OnCreateContextMenuListener {
+        TextView timeText, nameText;
+        EmojiTextView messageText;
         CircleImageView profileImage;
 
         ReceivedMessageHolder(View itemView) {
@@ -160,55 +198,74 @@ public class MessageListAdapter extends RecyclerView.Adapter {
             timeText = itemView.findViewById(R.id.text_message_time);
             nameText = itemView.findViewById(R.id.text_message_name);
             profileImage = itemView.findViewById(R.id.image_message_profile);
+            messageText.setOnCreateContextMenuListener(this);
         }
 
-        void bind(SocketMessage message,int position) {
+        void bind(SocketMessage message, final int position) {
 
-            timeText.setText(Methods.getTimeStamp(Long.valueOf(message.getTime()),formatter));
+            timeText.setText(Methods.getTimeStamp(Long.valueOf(message.getTime()), formatter));
             nameText.setText(oppositeUser.getUSERNAME_IN_PHONE());
             profileImage.setImageBitmap(Converter.Base642Bitmap(oppositeUser.getBASE64()));
 
-            if(position!=0){
-                SocketMessage message1 = mMessageList.get(position-1);
-                if(message1.getSender().equals(message.getSender())){
+            if (position != 0) {
+                SocketMessage message1 = mMessageList.get(position - 1);
+                if (message1.getSender().equals(message.getSender())) {
                     nameText.setVisibility(View.GONE);
                     profileImage.setVisibility(View.INVISIBLE);
-                }else {
+                } else {
                     nameText.setVisibility(View.VISIBLE);
                     profileImage.setVisibility(View.VISIBLE);
                 }
             }
 
-            if(isEmoji(message.getMessage())) {
-                messageText.setBackgroundColor(Color.argb(0,0,0,0));
+            if (isEmoji(message.getMessage())) {
+                messageText.setBackgroundColor(Color.argb(0, 0, 0, 0));
                 messageText.setEmojiSize(120);
-                if(isEmojiis(message.getMessage())) {
+                if (isEmojiis(message.getMessage())) {
                     messageText.setEmojiSize(300);
                 }
             } else {
-                messageText.setBackground(ContextCompat.getDrawable(mContext,R.drawable.chat_message_rounded));
+                messageText.setBackground(ContextCompat.getDrawable(mContext, R.drawable.chat_message_rounded));
                 messageText.setEmojiSize(60);
             }
             messageText.setText(message.getMessage());
             messageText.setTextSize(FontSize);
+
+            messageText.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    //Toast.makeText(mContext, "Long Pressed", Toast.LENGTH_SHORT).show();
+                    setPosition(position);
+                    return false;
+                }
+            });
         }
+
+        @Override
+        public void onCreateContextMenu(ContextMenu menu, View view, ContextMenu.ContextMenuInfo contextMenuInfo) {
+            MenuInflater inflater = new MenuInflater(mContext);
+            inflater.inflate(R.menu.context_menu_message, menu);
+            menu.setHeaderTitle("Select");
+        }
+
     }
 
-    private void UpdateMsgStatus(final TextView view)
-    {
+    private void UpdateMsgStatus(final TextView view) {
         FirebaseDatabase.getInstance().getReference("MsgStatus").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child(oppositeUid).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 String status = dataSnapshot.getValue(String.class);
                 view.setText(status);
             }
+
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
 
             }
         });
     }
-    private static boolean isEmoji(String message){
+
+    private static boolean isEmoji(String message) {
         return message.matches("(?:[\uD83C\uDF00-\uD83D\uDDFF]|[\uD83E\uDD00-\uD83E\uDDFF]|" +
                 "[\uD83D\uDE00-\uD83D\uDE4F]|[\uD83D\uDE80-\uD83D\uDEFF]|" +
                 "[\u2600-\u26FF]\uFE0F?|[\u2700-\u27BF]\uFE0F?|\u24C2\uFE0F?|" +
@@ -221,7 +278,8 @@ public class MessageListAdapter extends RecyclerView.Adapter {
                 "[\u00A9\u00AE]\uFE0F?|[\u2122\u2139]\uFE0F?|\uD83C\uDC04\uFE0F?|\uD83C\uDCCF\uFE0F?|" +
                 "[\u231A\u231B\u2328\u23CF\u23E9-\u23F3\u23F8-\u23FA]\uFE0F?)+");
     }
-    private static boolean isEmojiis(String message){
+
+    private static boolean isEmojiis(String message) {
         return message.matches("(?:[\u2764\uFE0F\u2665]){2}");
     }
 }

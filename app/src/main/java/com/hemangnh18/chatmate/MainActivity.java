@@ -238,26 +238,30 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             navigationView.getMenu().getItem(0).setChecked(true);
             navigationView.getMenu().getItem(2).setChecked(false);
             navigationView.getMenu().getItem(1).setChecked(false);
+            delay();
 
         } else if (id == R.id.nav_contact) {
             viewPager.setCurrentItem(0);
             navigationView.getMenu().getItem(1).setChecked(true);
             navigationView.getMenu().getItem(0).setChecked(false);
             navigationView.getMenu().getItem(2).setChecked(false);
+            delay();
 
         }else if (id == R.id.room) {
             viewPager.setCurrentItem(2);
             navigationView.getMenu().getItem(2).setChecked(true);
             navigationView.getMenu().getItem(0).setChecked(false);
             navigationView.getMenu().getItem(1).setChecked(false);
+            delay();
 
         }else if (id == R.id.nav_settings) {
-
             startActivity(new Intent(MainActivity.this,Settings.class));
 
         }else if (id == R.id.nav_profile) {
-
-            //TODO
+            Intent intent = new Intent(MainActivity.this,UserInfo.class);
+            intent.putExtra("Show_Info",true);
+            startActivity(intent);
+            delay();
 
         }else if (id == R.id.nav_invite) {
 
@@ -268,10 +272,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             //TODO
 
         }
-        delay();
         return true;
     }
-
 
 
     //----delay---------
@@ -282,7 +284,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 drawer.closeDrawer(GravityCompat.START);
             }
         },200);
-        return;
     }
 
     //----menu bar----

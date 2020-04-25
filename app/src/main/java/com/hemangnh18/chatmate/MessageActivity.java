@@ -23,6 +23,7 @@ import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -82,6 +83,7 @@ import retrofit2.Response;
 
 public class MessageActivity extends AppCompatActivity {
 
+    private static final String TAG = "ChatMate";
     private RecyclerView mMessageRecycler;
     private MessageListAdapter mMessageAdapter;
     private List<SocketMessage> messageList;
@@ -119,7 +121,6 @@ public class MessageActivity extends AppCompatActivity {
         super.onStart();
         EventBus.getDefault().register(this);
     }
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -280,6 +281,7 @@ public class MessageActivity extends AppCompatActivity {
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         mMessageRecycler.setLayoutManager(linearLayoutManager);
         mMessageRecycler.setAdapter(mMessageAdapter);
+        registerForContextMenu(mMessageRecycler);
 
         mMessageRecycler.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
@@ -300,6 +302,30 @@ public class MessageActivity extends AppCompatActivity {
                 mScrollDown.setVisibility(View.INVISIBLE);
             }
         });
+    }
+
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        int position = -1;
+        try {
+            position = mMessageAdapter.getPosition();
+        } catch (Exception e) {
+            Log.d(TAG, e.getLocalizedMessage(), e);
+            return super.onContextItemSelected(item);
+        }
+        switch (item.getItemId()) {
+            case R.id.forward_contextmenu:
+                // do your stuff
+                //TODO use position
+                Toast.makeText(this, "Forward", Toast.LENGTH_SHORT).show();
+                break;
+            case R.id.delete_contextmenu:
+                // do your stuff
+                //TODO use position
+                Toast.makeText(this, "Delete", Toast.LENGTH_SHORT).show();
+                break;
+        }
+        return super.onContextItemSelected(item);
     }
 
     public void sendMessage(View view){
@@ -331,7 +357,6 @@ public class MessageActivity extends AppCompatActivity {
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-
 
             SocketHandler.getSocket().emit("chat message", jsonObject);
         }
