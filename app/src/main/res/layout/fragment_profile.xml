@@ -5,10 +5,11 @@
     android:layout_height="match_parent"
     tools:context=".Fragments.Profilefragment">
 
-    <TextView
-        android:layout_gravity="center"
-        android:gravity="center"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="HELLO Profile" />
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/general_room"
+        android:text="General Room"
+        android:layout_gravity="center"/>
+
 </FrameLayout>
